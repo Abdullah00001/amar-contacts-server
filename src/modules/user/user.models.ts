@@ -8,6 +8,7 @@ const UserSchema = new Schema<IUser>({
   password: { type: String, required: true, unique: true },
   avatar: { type: String, default: null },
   isVerified: { type: Boolean, default: false },
+  phone: { type: String, default: null },
 });
 
 UserSchema.pre('save', async function (next) {
