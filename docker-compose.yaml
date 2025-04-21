@@ -4,7 +4,7 @@ services:
     container_name: database_container
     ports:
       - 27017:27017
-    command: ["mongod", "--replSet", "rs0"]
+    # command: ['mongod', '--replSet', 'rs0']
     networks:
       - backend_network
     volumes:
@@ -28,12 +28,13 @@ services:
     networks:
       - backend_network
     volumes:
-      - "./:/usr/src/app"
+      - './:/usr/src/app'
     depends_on:
       - database
       - redis
 networks:
   backend_network:
+    name: backend_network
     driver: bridge
 volumes:
   database_volume:
