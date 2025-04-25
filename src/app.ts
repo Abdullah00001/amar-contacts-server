@@ -6,6 +6,8 @@ import corsConfiguration from './configs/cors.configs';
 // import { baseUrl } from "./const";
 import { globalErrorMiddleware } from './middlewares/globalError.middleware';
 import cookieParser from 'cookie-parser';
+import v1Routes from './routes/v1';
+import { baseUrl } from './const';
 
 const app = express();
 
@@ -25,8 +27,11 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 /* ====================================|
-|------------APP ROUTES V1-------------|
+|--------------APP ROUTES--------------|
 |==================================== */
+
+// V1 ROUTES
+app.use(baseUrl.v1, v1Routes);
 
 app.use(globalErrorMiddleware);
 

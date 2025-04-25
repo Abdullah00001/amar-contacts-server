@@ -1,12 +1,15 @@
-import { Request } from "express";
-import multer, { FileFilterCallback } from "multer";
+import { Request } from 'express';
+import multer, { FileFilterCallback } from 'multer';
+import path from 'path';
 
 const storage = multer.diskStorage({
   destination: (req: Request, file, cb) => {
-    cb(null, "./public/temp");
+    cb(null, './public/temp');
   },
   filename: (req: Request, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
+    const name = path.parse(file.originalname).name;
+    const ext = path.extname(file.originalname);
+    cb(null, name + '-' + Date.now() + '-' + ext);
   },
 });
 
@@ -15,10 +18,20 @@ const fileFilter = (
   file: Express.Multer.File,
   cb: FileFilterCallback
 ) => {
-  if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
+  if (
+    file.mimetype === 'image/jpeg' ||
+    file.mimetype === 'image/png' ||
+    file.mimetype === 'image/webp' ||
+    file.mimetype === 'image/svg+xml'
+  ) {
     cb(null, true);
   } else {
-    cb(new Error("Only .jpeg and .png files are allowed!") as any, false);
+    cb(
+      new Error(
+        'Only .jpeg and .png and .webp and .svg files are allowed!'
+      ) as any,
+      false
+    );
   }
 };
 

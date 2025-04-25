@@ -8,4 +8,7 @@ export default interface IEnvConfig {
   SMTP_PORT: number;
   SMTP_USER: string;
   SMTP_PASS: string;
+  CLOUDINARY_NAME: string;
+  CLOUDINARY_API_KEY: string;
+  CLOUDINARY_API_SECRET_KEY: string;
 }

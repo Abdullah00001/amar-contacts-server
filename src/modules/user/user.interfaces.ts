@@ -1,9 +1,9 @@
-import { Types } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
-interface IUser {
+interface IUser extends Document {
   name: string;
   email: string;
-  phone:string;
+  phone: string;
   password: string;
   isVerified: boolean;
   avatar: string;
@@ -16,7 +16,7 @@ export interface IUserPayload {
   isVerified?: boolean;
   avatar?: string;
   userId?: Types.ObjectId;
-  phone?:string;
+  phone?: string;
 }
 
 export default IUser;

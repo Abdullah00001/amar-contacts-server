@@ -12,7 +12,7 @@ const UserSchema = new Schema<IUser>({
 });
 
 UserSchema.pre('save', async function (next) {
-  const user = this;
+  const user = this as IUser;
   if (user.isModified('password') || user.isNew) {
     try {
       user.password = (await hashPassword(user.password)) as string;
