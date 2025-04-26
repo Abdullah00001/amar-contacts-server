@@ -1,10 +1,10 @@
-import { Types } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export interface IWorksAt {
   company: string;
   position: string;
 }
-interface IProfile {
+interface IProfile extends Document {
   bio: string;
   worksAt: IWorksAt;
   location: string;
