@@ -9,7 +9,7 @@
     "dev": "nodemon",
     "create:module": "node ./scripts/createModule.js",
     "lint": "eslint \"src/**/*.{ts,js}\" --quiet",
-    "test": "jest --passWithNoTests",
+    "test": "jest",
     "create:test": "node ./scripts/createTestModule.js"
   },
   "keywords": [],

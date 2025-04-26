@@ -4,7 +4,6 @@ services:
     container_name: database_container
     ports:
       - 27017:27017
-    # command: ['mongod', '--replSet', 'rs0']
     networks:
       - backend_network
     volumes:
