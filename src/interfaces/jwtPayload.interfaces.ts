@@ -1,14 +1,9 @@
 import { JwtPayload } from "jsonwebtoken";
-import mongoose from "mongoose";
+import  { Types } from "mongoose";
 
-export enum UserRole {
-  Host = "host",
-  Guest = "guest",
-  Admin = "admin",
-}
 export interface TokenPayload extends JwtPayload {
-  userId: mongoose.Schema.Types.ObjectId;
+  userId: Types.ObjectId;
   email: string;
-  role: UserRole;
   isVerified: boolean;
+  name: string;
 }
