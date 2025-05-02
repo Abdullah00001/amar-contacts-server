@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
-import { saltRound } from '../const';
-import logger from '../configs/logger.configs';
+import { saltRound } from '@/const';
+import logger from '@/configs/logger.configs';
 
 export const hashPassword = async (
   passwordString: string

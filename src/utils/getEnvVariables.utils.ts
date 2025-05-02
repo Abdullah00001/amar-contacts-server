@@ -1,6 +1,6 @@
-import dotenv from "dotenv";
+import { config } from 'dotenv';
 
-dotenv.config();
+config();
 
 const load = process.env;
 

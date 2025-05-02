@@ -15,7 +15,7 @@ const ProfileSchema = new Schema<IProfile>({
     company: { type: String, default: null },
     position: { type: String, default: null },
   },
-});
+},{timestamps:true});
 
 const Profile: Model<IProfile> = model<IProfile>('Profile', ProfileSchema);
 

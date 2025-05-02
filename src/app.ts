@@ -1,13 +1,12 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
-import { morganMessageFormat, streamConfig } from './configs/morgan.configs';
-import corsConfiguration from './configs/cors.configs';
-// import { baseUrl } from "./const";
-import { globalErrorMiddleware } from './middlewares/globalError.middleware';
+import { morganMessageFormat, streamConfig } from '@/configs/morgan.configs';
+import corsConfiguration from '@/configs/cors.configs';
+import { globalErrorMiddleware } from '@/middlewares/globalError.middleware';
 import cookieParser from 'cookie-parser';
-import v1Routes from './routes/v1';
-import { baseUrl } from './const';
+import v1Routes from '@/routes/v1';
+import { baseUrl } from '@/const';
 
 const app = express();
 

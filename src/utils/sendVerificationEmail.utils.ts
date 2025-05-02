@@ -1,12 +1,11 @@
 import Handlebars from "handlebars";
-import mailTransporter from "../configs/nodemailer.configs";
+import mailTransporter from "@/configs/nodemailer.configs";
 import mailOption from "./mailOption.utils";
-import { verificationEmailTemplate } from "../templates/verificationEmailTemplate";
-import { IVerificationEmailData } from "../interfaces/verificationEmailData.interfaces";
+import { verificationEmailTemplate } from "@/templates/verificationEmailTemplate";
+import { IVerificationEmailData } from "@/interfaces/verificationEmailData.interfaces";
 
 const sendVerificationEmail = async (data: IVerificationEmailData) => {
   try {
-    console.log(data);
     const template = Handlebars.compile(verificationEmailTemplate);
     const personalizedTemplate = template(data);
     await mailTransporter.sendMail(

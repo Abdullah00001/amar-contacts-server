@@ -6,9 +6,13 @@ until docker exec database_container mongosh --eval "db.adminCommand('ping')" > 
   sleep 2
 done
 
-echo "✅ MongoDB is up. Initializing replica set..."
+HOST_IP="10.0.0.103"  # Your actual host IP
 
-# Initialize replica set if not already
-docker exec database_container mongosh --eval 'rs.initiate()' || echo "Replica set may already be initialized."
+echo "✅ MongoDB is up. Initiating replica set with host $HOST_IP..."
 
-echo "✅ Replica set initiated (or already initialized)."
+docker exec database_container mongosh --eval "rs.initiate({
+  _id: 'rs0',
+  members: [{ _id: 0, host: '${HOST_IP}:27017' }]
+})" \
+&& echo "✅ Replica set initiated." \
+|| echo "⚠️ Replica set may already be initialized or failed."

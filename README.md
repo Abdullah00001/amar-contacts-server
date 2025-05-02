@@ -9,4 +9,3 @@ So, when running the project in development, use the following commands:
 docker compose up -d
 ./init-replica.sh
 ```
-

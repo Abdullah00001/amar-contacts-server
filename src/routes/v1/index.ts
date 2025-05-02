@@ -1,6 +1,7 @@
 import { Router } from 'express';
+import UserRoutes from './user.routes';
 
-const routes: Router[] = [];
+const routes: Router[] = [UserRoutes];
 
 const v1Routes = Router();
 

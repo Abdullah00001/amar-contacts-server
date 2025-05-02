@@ -2,6 +2,7 @@ services:
   database:
     image: mongo:latest
     container_name: database_container
+    command: ['--replSet', 'rs0', '--bind_ip_all']
     ports:
       - 27017:27017
     networks:

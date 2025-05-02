@@ -1,5 +1,5 @@
-import { env } from "../env";
-import CookieOptions from "../interfaces/cookie.interface";
+import { env } from "@/env";
+import CookieOptions from "@/interfaces/cookie.interface";
 
 const cookieOption = (
   min?: number | null,

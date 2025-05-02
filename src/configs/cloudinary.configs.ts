@@ -1,5 +1,5 @@
 import { v2 as cloudinary, ConfigOptions } from 'cloudinary';
-import { env } from '../env';
+import { env } from '@/env';
 import fs from 'fs';
 
 const { CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET_KEY, CLOUDINARY_NAME } = env;

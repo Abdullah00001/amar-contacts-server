@@ -1,4 +1,4 @@
-import { IMailOption } from "../interfaces/mailOption.interfaces";
+import { IMailOption } from "@/interfaces/mailOption.interfaces";
 
 const mailOption = (to: string, subject: string, html: string): IMailOption => {
   const option: IMailOption = {

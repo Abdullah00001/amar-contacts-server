@@ -1,6 +1,6 @@
-import { CorsOptions } from "cors";
-import logger from "./logger.configs";
-import { corsWhiteList } from "../const";
+import { CorsOptions } from 'cors';
+import logger from './logger.configs';
+import { corsWhiteList } from '@/const';
 
 const corsConfiguration: CorsOptions = {
   origin: (origin, callback) => {
@@ -8,11 +8,11 @@ const corsConfiguration: CorsOptions = {
       callback(null, true);
     } else {
       logger.warn(`Blocked CORS request from origin: ${origin}`);
-      callback(new Error("CORS not allowed"), false);
+      callback(new Error('CORS not allowed'), false);
     }
   },
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true,
   preflightContinue: false,
   optionsSuccessStatus: 200,

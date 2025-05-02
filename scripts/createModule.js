@@ -26,6 +26,7 @@ const files = {
   [`${moduleName}.interfaces.ts`]: '', // empty
   [`${moduleName}.models.ts`]: '', // empty
   [`${moduleName}.validations.ts`]: '', // empty
+  [`${moduleName}.enums.ts`]: '', // empty
 };
 
 // Capitalize function
