@@ -51,7 +51,6 @@ const UserServices = {
         userId: user?._id! as Types.ObjectId,
         isVerified: user?.isVerified!,
         name: user?.name!,
-        
       });
       return { accessToken: accessToken!, refreshToken: refreshToken! };
     } catch (error) {
