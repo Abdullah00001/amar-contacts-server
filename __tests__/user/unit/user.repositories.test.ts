@@ -12,5 +12,3 @@ jest.mock('mongoose', () => {
     startSession: jest.fn(),
   };
 });
-
-describe('User Repositories', () => {});
