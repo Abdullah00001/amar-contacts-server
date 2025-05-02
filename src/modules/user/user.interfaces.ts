@@ -17,6 +17,9 @@ export interface IUserPayload {
   avatar?: string;
   userId?: Types.ObjectId;
   phone?: string;
+  otp?: string;
+  accessToken?: string;
+  refreshToken?: string;
 }
 
 export default IUser;
