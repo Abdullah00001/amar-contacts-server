@@ -1,5 +1,5 @@
 import UserRepositories from '@/modules/user/user.repositories';
-import { IUserPayload } from '@/modules/user/user.interfaces';
+import IUser, { IUserPayload } from '@/modules/user/user.interfaces';
 import { generate } from 'otp-generator';
 import redisClient from '@/configs/redis.configs';
 import { otpExpireAt } from '@/const';
@@ -60,6 +60,26 @@ const UserServices = {
         throw new Error('Unknown Error Occurred In Process Verify Service');
       }
     }
+  },
+  processLogin: (payload: IUser): IUserPayload => {
+    const { email, isVerified, id, name } = payload;
+    const accessToken = generateAccessToken({
+      email,
+      isVerified,
+      userId: id,
+      name,
+    });
+    const refreshToken = generateRefreshToken({
+      email,
+      isVerified,
+      userId: id,
+      name,
+    });
+
+    return {
+      accessToken: accessToken!,
+      refreshToken: refreshToken!,
+    };
   },
 };
 

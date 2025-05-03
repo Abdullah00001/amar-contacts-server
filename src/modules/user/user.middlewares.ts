@@ -3,6 +3,7 @@ import redisClient from '@/configs/redis.configs';
 import UserRepositories from '@/modules/user/user.repositories';
 import { NextFunction, Request, Response } from 'express';
 import IUser from './user.interfaces';
+import { comparePassword } from '@/utils/password.utils';
 
 const { findUserByEmail } = UserRepositories;
 
@@ -30,17 +31,45 @@ const UserMiddlewares = {
       }
     }
   },
+  isUserExistAndVerified: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { email } = req.body;
+      const isUserExist = await findUserByEmail(email);
+      if (!isUserExist) {
+        res.status(404).json({ status: 'error', message: 'User Not Found' });
+        return;
+      }
+      if (!isUserExist.isVerified) {
+        res.status(400).json({ status: 'error', message: 'User Not Verified' });
+        return;
+      }
+      req.user = isUserExist;
+      next();
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error(error);
+        next(error);
+      } else {
+        logger.error(
+          'Unknown Error Occurred In isUser Exist and Verified Middleware'
+        );
+        next(error);
+      }
+    }
+  },
   isUserExist: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email } = req.body;
-      const isUser = await findUserByEmail(email);
-      if (!isUser) {
-        res
-          .status(404)
-          .json({ success: false, message: 'User with this email not found' });
+      const isUserExist = await findUserByEmail(email);
+      if (!isUserExist) {
+        res.status(404).json({ status: 'error', message: 'User Not Found' });
         return;
       }
-      req.user = isUser;
+      req.user = isUserExist;
       next();
     } catch (error) {
       if (error instanceof Error) {
@@ -74,6 +103,24 @@ const UserMiddlewares = {
         next(error);
       } else {
         logger.error('Unknown Error Occurred In Check Otp Middleware');
+        next(error);
+      }
+    }
+  },
+  checkPassword: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { password } = req.user as IUser;
+      if (!(await comparePassword(req?.body?.password, password))) {
+        res.status(400).json({ status: 'error', message: 'Invalid Password' });
+        return;
+      }
+      next();
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error(error);
+        next(error);
+      } else {
+        logger.error('Unknown Error Occurred In Check Password Middleware');
         next(error);
       }
     }

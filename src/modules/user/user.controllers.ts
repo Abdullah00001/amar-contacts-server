@@ -3,9 +3,8 @@ import logger from '@/configs/logger.configs';
 import UserServices from '@/modules/user/user.services';
 import IUser from '@/modules/user/user.interfaces';
 import cookieOption from '@/utils/cookie.utils';
-import { accessTokenExpiresIn } from '@/const';
 
-const { processSignup, processVerifyUser } = UserServices;
+const { processSignup, processVerifyUser,processLogin } = UserServices;
 
 const UserControllers = {
   handleSignUp: async (req: Request, res: Response, next: NextFunction) => {
@@ -27,13 +26,29 @@ const UserControllers = {
       const user = req?.user as IUser;
       const { accessToken, refreshToken } = await processVerifyUser(user);
       res.cookie('accesstoken', accessToken, cookieOption(30, null));
-      res.cookie('refreshtoken', refreshToken, cookieOption(7));
+      res.cookie('refreshtoken', refreshToken, cookieOption(null, 7));
       res.status(200).json({
         success: true,
         message: 'Email verification successful',
       });
     } catch (error) {
       logger.error(error);
+      next(error);
+    }
+  },
+  handleLogin: (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { accessToken, refreshToken } = processLogin(req.user as IUser);
+      res.cookie('accesstoken', accessToken, cookieOption(30, null));
+      res.cookie('refreshtoken', refreshToken, cookieOption(null, 7));
+      res.status(200).json({
+        status: 'success',
+        message: 'Login successful',
+      });
+      return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
       next(error);
     }
   },
