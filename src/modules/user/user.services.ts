@@ -6,6 +6,7 @@ import { otpExpireAt } from '@/const';
 import sendVerificationEmail from '@/utils/sendVerificationEmail.utils';
 import { generateAccessToken, generateRefreshToken } from '@/utils/jwt.utils';
 import { Types } from 'mongoose';
+import { TokenPayload } from '@/interfaces/jwtPayload.interfaces';
 
 const { createNewUser, verifyUser } = UserRepositories;
 
@@ -36,6 +37,29 @@ const UserServices = {
         throw new Error('Unknown Error Occurred In Process Signup Service');
       }
     }
+  },
+  processTokens: (payload: TokenPayload): IUserPayload => {
+    const { email, isVerified, role, userId, name, accountStatus } = payload;
+
+    const accessToken = generateAccessToken({
+      email,
+      isVerified,
+      role,
+      userId,
+      name,
+      accountStatus,
+    }) as string;
+
+    const refreshToken = generateRefreshToken({
+      email,
+      isVerified,
+      role,
+      userId,
+      name,
+      accountStatus,
+    }) as string;
+
+    return { accessToken, refreshToken };
   },
   processVerifyUser: async ({ email }: IUserPayload): Promise<IUserPayload> => {
     try {
