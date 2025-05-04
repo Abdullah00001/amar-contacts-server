@@ -4,7 +4,7 @@ import UserServices from '@/modules/user/user.services';
 import IUser from '@/modules/user/user.interfaces';
 import cookieOption from '@/utils/cookie.utils';
 
-const { processSignup, processVerifyUser,processLogin } = UserServices;
+const { processSignup, processVerifyUser, processLogin } = UserServices;
 
 const UserControllers = {
   handleSignUp: async (req: Request, res: Response, next: NextFunction) => {
@@ -18,6 +18,15 @@ const UserControllers = {
       });
     } catch (error) {
       logger.error(error);
+      next(error);
+    }
+  },
+  handleCheck: (req: Request, res: Response, next: NextFunction) => {
+    try {
+      res.status(204).send();
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
       next(error);
     }
   },
