@@ -4,7 +4,7 @@ import UserRepositories from '@/modules/user/user.repositories';
 import { NextFunction, Request, Response } from 'express';
 import IUser from './user.interfaces';
 import { comparePassword } from '@/utils/password.utils';
-import { verifyAccessToken } from '@/utils/jwt.utils';
+import { verifyAccessToken, verifyRefreshToken } from '@/utils/jwt.utils';
 import { TokenPayload } from '@/interfaces/jwtPayload.interfaces';
 
 const { findUserByEmail } = UserRepositories;
@@ -134,7 +134,7 @@ const UserMiddlewares = {
         res.status(401).json({
           status: 'error',
           message: 'Unauthorize Request',
-          error: 'Accesstoken is missing',
+          error: 'Access Token is missing',
         });
         return;
       }
@@ -152,7 +152,7 @@ const UserMiddlewares = {
         res.status(403).json({
           status: 'error',
           message: 'Permission Denied',
-          error: 'Accesstoken expired or invalid',
+          error: 'Access Token expired or invalid',
         });
         return;
       }
@@ -163,7 +163,54 @@ const UserMiddlewares = {
         logger.error(error);
         next(error);
       } else {
-        logger.error('Unknown Error Occurred In Check AccessToken Middleware');
+        logger.error('Unknown Error Occurred In Check Access Token Middleware');
+        next(error);
+      }
+    }
+  },
+  checkRefreshToken: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const token = req.cookies?.refreshtoken;
+      if (!token) {
+        res.status(401).json({
+          status: 'error',
+          message: 'Unauthorize Request',
+          error: 'Refresh Token is missing',
+        });
+        return;
+      }
+      const isBlacklisted = await redisClient.get(`blacklist:${token}`);
+      if (isBlacklisted) {
+        res.status(403).json({
+          status: 'error',
+          message: 'Permission Denied',
+          error: 'Refresh Token has been revoked',
+        });
+        return;
+      }
+      const decoded = verifyRefreshToken(token);
+      if (!decoded) {
+        res.status(403).json({
+          status: 'error',
+          message: 'Permission Denied',
+          error: 'Refresh Token expired or invalid',
+        });
+        return;
+      }
+      req.decoded = decoded as TokenPayload;
+      next();
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error(error);
+        next(error);
+      } else {
+        logger.error(
+          'Unknown Error Occurred In Check Refresh Token Middleware'
+        );
         next(error);
       }
     }

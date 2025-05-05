@@ -62,9 +62,13 @@ const UserControllers = {
       next(error);
     }
   },
-  handleRefreshTokens: (req: Request, res: Response, next: NextFunction) => {
+  handleRefreshTokens: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      const { accessToken, refreshToken } = processTokens(req.decoded);
+      const { accessToken, refreshToken } = await processTokens(req.decoded);
       res.clearCookie('refreshtoken');
       res.cookie('accesstoken', accessToken, cookieOption(30, null));
       res.cookie('refreshtoken', refreshToken, cookieOption(null, 7));

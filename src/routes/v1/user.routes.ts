@@ -9,9 +9,15 @@ const {
   checkPassword,
   isUserExist,
   checkAccessToken,
+  checkRefreshToken,
 } = UserMiddlewares;
-const { handleSignUp, handleVerifyUser, handleLogin, handleCheck } =
-  UserControllers;
+const {
+  handleSignUp,
+  handleVerifyUser,
+  handleLogin,
+  handleCheck,
+  handleRefreshTokens,
+} = UserControllers;
 
 const router = Router();
 
@@ -21,5 +27,6 @@ router
   .route('/auth/login')
   .post(isUserExistAndVerified, checkPassword, handleLogin);
 router.route('/auth/check').post(checkAccessToken, handleCheck);
+router.route('/auth/refresh').post(checkRefreshToken, handleRefreshTokens);
 
 export default router;

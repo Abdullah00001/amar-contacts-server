@@ -8,7 +8,7 @@ import { generateAccessToken, generateRefreshToken } from '@/utils/jwt.utils';
 import { Types } from 'mongoose';
 import { TokenPayload } from '@/interfaces/jwtPayload.interfaces';
 
-const { createNewUser, verifyUser } = UserRepositories;
+const { createNewUser, verifyUser, findUserByEmail } = UserRepositories;
 
 const UserServices = {
   processSignup: async (payload: IUserPayload) => {
@@ -38,25 +38,22 @@ const UserServices = {
       }
     }
   },
-  processTokens: (payload: TokenPayload): IUserPayload => {
-    const { email, isVerified, role, userId, name, accountStatus } = payload;
-
+  processTokens: async (payload: TokenPayload): Promise<IUserPayload> => {
+    const { email } = payload;
+    const user = await findUserByEmail(email);
+    user;
     const accessToken = generateAccessToken({
-      email,
-      isVerified,
-      role,
-      userId,
-      name,
-      accountStatus,
+      email: user?.email!,
+      isVerified: user?.isVerified!,
+      userId: user?._id! as Types.ObjectId,
+      name: user?.name!,
     }) as string;
 
     const refreshToken = generateRefreshToken({
-      email,
-      isVerified,
-      role,
-      userId,
-      name,
-      accountStatus,
+      email: user?.email!,
+      isVerified: user?.isVerified!,
+      userId: user?._id! as Types.ObjectId,
+      name: user?.name!,
     }) as string;
 
     return { accessToken, refreshToken };
