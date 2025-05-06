@@ -68,7 +68,15 @@ const UserControllers = {
     next: NextFunction
   ) => {
     try {
-      const { accessToken, refreshToken } = await processTokens(req.decoded);
+      const currentRefreshToken = req.cookies?.refreshtoken;
+      const { email, isVerified, name, userId } = req.decoded;
+      const { accessToken, refreshToken } = await processTokens({
+        userId,
+        email,
+        isVerified,
+        name,
+        refreshToken: currentRefreshToken,
+      });
       res.clearCookie('refreshtoken');
       res.cookie('accesstoken', accessToken, cookieOption(30, null));
       res.cookie('refreshtoken', refreshToken, cookieOption(null, 7));

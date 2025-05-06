@@ -138,7 +138,9 @@ const UserMiddlewares = {
         });
         return;
       }
-      const isBlacklisted = await redisClient.get(`blacklist:${token}`);
+      const isBlacklisted = await redisClient.get(
+        `blacklist:accessToken:${token}`
+      );
       if (isBlacklisted) {
         res.status(403).json({
           status: 'error',
@@ -183,7 +185,9 @@ const UserMiddlewares = {
         });
         return;
       }
-      const isBlacklisted = await redisClient.get(`blacklist:${token}`);
+      const isBlacklisted = await redisClient.get(
+        `blacklist:refreshToken:${token}`
+      );
       if (isBlacklisted) {
         res.status(403).json({
           status: 'error',
