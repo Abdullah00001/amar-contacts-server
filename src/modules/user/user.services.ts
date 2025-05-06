@@ -2,13 +2,17 @@ import UserRepositories from '@/modules/user/user.repositories';
 import IUser, { IUserPayload } from '@/modules/user/user.interfaces';
 import { generate } from 'otp-generator';
 import redisClient from '@/configs/redis.configs';
-import { otpExpireAt } from '@/const';
+import { otpExpireAt, refreshTokenBlackListExpAt } from '@/const';
 import sendVerificationEmail from '@/utils/sendVerificationEmail.utils';
 import { generateAccessToken, generateRefreshToken } from '@/utils/jwt.utils';
 import { Types } from 'mongoose';
-import { TokenPayload } from '@/interfaces/jwtPayload.interfaces';
+import {
+  IRefreshTokenPayload,
+} from '@/interfaces/jwtPayload.interfaces';
+import CalculationUtils from '@/utils/calculation.utils';
 
 const { createNewUser, verifyUser, findUserByEmail } = UserRepositories;
+const { calculateMilliseconds } = CalculationUtils;
 
 const UserServices = {
   processSignup: async (payload: IUserPayload) => {
@@ -38,25 +42,32 @@ const UserServices = {
       }
     }
   },
-  processTokens: async (payload: TokenPayload): Promise<IUserPayload> => {
-    const { email } = payload;
+  processTokens: async (
+    payload: IRefreshTokenPayload
+  ): Promise<IUserPayload> => {
+    const { email, refreshToken } = payload;
     const user = await findUserByEmail(email);
     user;
-    const accessToken = generateAccessToken({
+    const newAccessToken = generateAccessToken({
       email: user?.email!,
       isVerified: user?.isVerified!,
       userId: user?._id! as Types.ObjectId,
       name: user?.name!,
     }) as string;
 
-    const refreshToken = generateRefreshToken({
+    const newRefreshToken = generateRefreshToken({
       email: user?.email!,
       isVerified: user?.isVerified!,
       userId: user?._id! as Types.ObjectId,
       name: user?.name!,
     }) as string;
-
-    return { accessToken, refreshToken };
+    await redisClient.set(
+      `blacklist:refreshToken:${user?._id}`,
+      refreshToken,
+      'EX',
+      calculateMilliseconds(refreshTokenBlackListExpAt, 'milliseconds')
+    );
+    return { accessToken: newAccessToken, refreshToken: newRefreshToken };
   },
   processVerifyUser: async ({ email }: IUserPayload): Promise<IUserPayload> => {
     try {
