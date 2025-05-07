@@ -4,8 +4,13 @@ import UserServices from '@/modules/user/user.services';
 import IUser from '@/modules/user/user.interfaces';
 import cookieOption from '@/utils/cookie.utils';
 
-const { processSignup, processVerifyUser, processLogin, processTokens } =
-  UserServices;
+const {
+  processSignup,
+  processVerifyUser,
+  processLogin,
+  processTokens,
+  processLogout,
+} = UserServices;
 
 const UserControllers = {
   handleSignUp: async (req: Request, res: Response, next: NextFunction) => {
@@ -54,6 +59,28 @@ const UserControllers = {
       res.status(200).json({
         status: 'success',
         message: 'Login successful',
+      });
+      return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleLogout: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { userId } = req.decoded;
+      const { accesstoken, refreshtoken } = req.cookies;
+      await processLogout({
+        accessToken: accesstoken,
+        refreshToken: refreshtoken,
+        userId,
+      });
+      res.clearCookie('accesstoken');
+      res.clearCookie('refreshtoken');
+      res.status(200).json({
+        status: 'success',
+        message: 'Logout successful',
       });
       return;
     } catch (error) {

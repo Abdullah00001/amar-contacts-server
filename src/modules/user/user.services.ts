@@ -2,13 +2,15 @@ import UserRepositories from '@/modules/user/user.repositories';
 import IUser, { IUserPayload } from '@/modules/user/user.interfaces';
 import { generate } from 'otp-generator';
 import redisClient from '@/configs/redis.configs';
-import { otpExpireAt, refreshTokenBlackListExpAt } from '@/const';
+import {
+  accessTokenBlackListExpAt,
+  otpExpireAt,
+  refreshTokenBlackListExpAt,
+} from '@/const';
 import sendVerificationEmail from '@/utils/sendVerificationEmail.utils';
 import { generateAccessToken, generateRefreshToken } from '@/utils/jwt.utils';
 import { Types } from 'mongoose';
-import {
-  IRefreshTokenPayload,
-} from '@/interfaces/jwtPayload.interfaces';
+import { IRefreshTokenPayload } from '@/interfaces/jwtPayload.interfaces';
 import CalculationUtils from '@/utils/calculation.utils';
 
 const { createNewUser, verifyUser, findUserByEmail } = UserRepositories;
@@ -112,6 +114,32 @@ const UserServices = {
       accessToken: accessToken!,
       refreshToken: refreshToken!,
     };
+  },
+  processLogout: async ({
+    accessToken,
+    refreshToken,
+    userId,
+  }: IUserPayload) => {
+    try {
+      await redisClient.set(
+        `blacklist:refreshToken:${userId}`,
+        refreshToken!,
+        'EX',
+        calculateMilliseconds(refreshTokenBlackListExpAt, 'milliseconds')
+      );
+      await redisClient.set(
+        `blacklist:accessToken:${userId}`,
+        accessToken!,
+        'EX',
+        calculateMilliseconds(accessTokenBlackListExpAt, 'second')
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Process Logout Service');
+      }
+    }
   },
 };
 
