@@ -2,7 +2,7 @@ import logger from '@/configs/logger.configs';
 import redisClient from '@/configs/redis.configs';
 import UserRepositories from '@/modules/user/user.repositories';
 import { NextFunction, Request, Response } from 'express';
-import IUser from './user.interfaces';
+import IUser from '@/modules/user/user.interfaces';
 import { comparePassword } from '@/utils/password.utils';
 import { verifyAccessToken, verifyRefreshToken } from '@/utils/jwt.utils';
 import { TokenPayload } from '@/interfaces/jwtPayload.interfaces';
