@@ -1,5 +1,5 @@
-import IEnvConfig from './interfaces/env.interfaces';
-import { getEnvVariable } from './utils/getEnvVariables.utils';
+import IEnvConfig from '@/interfaces/env.interfaces';
+import { getEnvVariable } from '@/utils/getEnvVariables.utils';
 
 export const env: IEnvConfig = {
   MONGODB_URI: getEnvVariable('MONGODB_URI'),

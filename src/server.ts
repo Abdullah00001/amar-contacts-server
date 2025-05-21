@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
-import app from './app';
-import connectDatabase from './configs/db.configs';
-import CloudinaryConfigs from './configs/cloudinary.configs';
+import app from '@/app';
+import connectDatabase from '@/configs/db.configs';
+import CloudinaryConfigs from '@/configs/cloudinary.configs';
 
 const { config } = dotenv;
 const { initializedCloudinary } = CloudinaryConfigs;

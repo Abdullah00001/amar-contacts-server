@@ -49,19 +49,18 @@ const UserServices = {
   ): Promise<IUserPayload> => {
     const { email, refreshToken } = payload;
     const user = await findUserByEmail(email);
-    user;
     const newAccessToken = generateAccessToken({
-      email: user?.email!,
-      isVerified: user?.isVerified!,
-      userId: user?._id! as Types.ObjectId,
-      name: user?.name!,
+      email: user?.email as string,
+      isVerified: user?.isVerified as boolean,
+      userId: user?._id as Types.ObjectId,
+      name: user?.name as string,
     }) as string;
 
     const newRefreshToken = generateRefreshToken({
-      email: user?.email!,
-      isVerified: user?.isVerified!,
-      userId: user?._id! as Types.ObjectId,
-      name: user?.name!,
+      email: user?.email as string,
+      isVerified: user?.isVerified as boolean,
+      userId: user?._id as Types.ObjectId,
+      name: user?.name as string,
     }) as string;
     await redisClient.set(
       `blacklist:refreshToken:${user?._id}`,
@@ -75,16 +74,16 @@ const UserServices = {
     try {
       const user = await verifyUser({ email });
       const accessToken = generateAccessToken({
-        email: user?.email!,
-        userId: user?._id! as Types.ObjectId,
-        isVerified: user?.isVerified!,
-        name: user?.name!,
+        email: user?.email as string,
+        isVerified: user?.isVerified as boolean,
+        userId: user?._id as Types.ObjectId,
+        name: user?.name as string,
       });
       const refreshToken = generateRefreshToken({
-        email: user?.email!,
-        userId: user?._id! as Types.ObjectId,
-        isVerified: user?.isVerified!,
-        name: user?.name!,
+        email: user?.email as string,
+        isVerified: user?.isVerified as boolean,
+        userId: user?._id as Types.ObjectId,
+        name: user?.name as string,
       });
       return { accessToken: accessToken!, refreshToken: refreshToken! };
     } catch (error) {

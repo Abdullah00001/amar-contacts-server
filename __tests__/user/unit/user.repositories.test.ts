@@ -12,3 +12,9 @@ jest.mock('mongoose', () => {
     startSession: jest.fn(),
   };
 });
+
+describe('Unit Test - user.repositories.test.ts', () => {
+  it('should test user.repositories.test.ts functionality', async () => {
+    // Add test logic for user.repositories.test.ts
+  });
+});

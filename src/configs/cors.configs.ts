@@ -1,5 +1,5 @@
 import { CorsOptions } from 'cors';
-import logger from './logger.configs';
+import logger from '@/configs/logger.configs';
 import { corsWhiteList } from '@/const';
 
 const corsConfiguration: CorsOptions = {
