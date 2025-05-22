@@ -28,3 +28,7 @@ Thumbs.db
 coverage
 *.test.ts
 *.spec.ts
+__tests__
+logs
+coverage
+.env
