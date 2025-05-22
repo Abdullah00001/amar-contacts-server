@@ -8,10 +8,10 @@ const cookieOption = (
   const option: CookieOptions = {
     httpOnly: true,
     secure: env.NODE_ENV === 'production',
-    sameSite: env.NODE_ENV === 'production' ? 'strict' : 'lax',
+    sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
     path: '/',
     domain:
-      env.NODE_ENV === 'production' ? '.amar-contacts.vercel.app' : 'localhost',
+      env.NODE_ENV === 'production' ? 'amar-contacts.vercel.app' : 'localhost',
   };
 
   if (min) {
