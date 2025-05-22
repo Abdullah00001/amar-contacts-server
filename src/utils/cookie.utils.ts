@@ -1,5 +1,5 @@
-import { env } from "@/env";
-import CookieOptions from "@/interfaces/cookie.interface";
+import { env } from '@/env';
+import CookieOptions from '@/interfaces/cookie.interface';
 
 const cookieOption = (
   min?: number | null,
@@ -7,10 +7,11 @@ const cookieOption = (
 ): CookieOptions => {
   const option: CookieOptions = {
     httpOnly: true,
-    secure: env.NODE_ENV === "production",
-    sameSite: env.NODE_ENV === "production" ? "strict" : "none",
-    path: "/",
-    domain: env.NODE_ENV === "production" ? "http://localhost:5173" : "",
+    secure: env.NODE_ENV === 'production',
+    sameSite: env.NODE_ENV === 'production' ? 'strict' : 'lax',
+    path: '/',
+    domain:
+      env.NODE_ENV === 'production' ? '.amar-contacts.vercel.app' : 'localhost',
   };
 
   if (min) {

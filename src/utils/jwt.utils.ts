@@ -1,7 +1,7 @@
-import jwt, { JwtPayload } from "jsonwebtoken";
-import { TokenPayload } from "@/interfaces/jwtPayload.interfaces";
-import { env } from "@/env";
-import { accessTokenExpiresIn, refreshTokenExpiresIn } from "../const";
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import { TokenPayload } from '@/interfaces/jwtPayload.interfaces';
+import { env } from '@/env';
+import { accessTokenExpiresIn, refreshTokenExpiresIn } from '../const';
 
 export const generateAccessToken = (payload: TokenPayload): string | null => {
   try {

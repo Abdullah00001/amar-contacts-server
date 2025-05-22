@@ -7,5 +7,5 @@ So, when running the project in development, use the following commands:
 
 ```bash
 docker compose up -d
-./init-replica.sh
+./scripts/init-replica.sh
 ```

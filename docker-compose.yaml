@@ -1,14 +1,14 @@
 services:
-  database:
-    image: mongo:latest
-    container_name: database_container
-    command: ['--replSet', 'rs0', '--bind_ip_all']
-    ports:
-      - 27017:27017
-    networks:
-      - backend_network
-    volumes:
-      - database_volume:/data/db
+  # database:
+  #   image: mongo:latest
+  #   container_name: database_container
+  #   command: ['--replSet', 'rs0', '--bind_ip_all']
+  #   ports:
+  #     - 27017:27017
+  #   networks:
+  #     - backend_network
+  #   volumes:
+  #     - database_volume:/data/db
   redis:
     image: redis:latest
     container_name: redis_container
@@ -30,12 +30,12 @@ services:
     volumes:
       - './:/usr/src/app'
     depends_on:
-      - database
+      # - database
       - redis
 networks:
   backend_network:
     name: backend_network
     driver: bridge
 volumes:
-  database_volume:
+  # database_volume:
   redis_volume:

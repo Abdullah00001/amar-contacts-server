@@ -7,6 +7,7 @@ until docker exec database_container mongosh --eval "db.adminCommand('ping')" > 
 done
 
 HOST_IP="10.0.0.103"  # Your actual host IP
+# HOST_IP="database_container:27017"
 
 echo "✅ MongoDB is up. Initiating replica set with host $HOST_IP..."
 
