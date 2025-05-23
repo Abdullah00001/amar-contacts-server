@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [v1.0.5] - 2025-05-23
+
+### Fixed
+
+- Removed the hardcoded `domain` from cookie options in production to ensure cookies are correctly set in cross-origin environments (e.g., frontend on Vercel, backend on Render).
+- Made `domain` optional in the `CookieOptions` interface to improve type flexibility and prevent misconfiguration.
 
 ## [1.0.4] - 2025-05-23
 
@@ -68,7 +74,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - This is the first production-ready pre-release (`v1.0.0`).
 - Focused on core authentication features and stable API structure.
 - Marks the foundational milestone for future modules and public deployment.
-
 
 ## [Unreleased]
 
