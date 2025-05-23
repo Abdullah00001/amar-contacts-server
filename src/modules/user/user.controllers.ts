@@ -10,6 +10,7 @@ const {
   processLogin,
   processTokens,
   processLogout,
+  processResend,
 } = UserServices;
 
 const UserControllers = {
@@ -45,6 +46,19 @@ const UserControllers = {
       res.status(200).json({
         success: true,
         message: 'Email verification successful',
+      });
+    } catch (error) {
+      logger.error(error);
+      next(error);
+    }
+  },
+  handleResend: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const user = req?.user as IUser;
+      await processResend(user);
+      res.status(200).json({
+        success: true,
+        message: 'Verification Email Resend Successful',
       });
     } catch (error) {
       logger.error(error);

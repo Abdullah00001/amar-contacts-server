@@ -20,7 +20,12 @@ const UserServices = {
   processSignup: async (payload: IUserPayload) => {
     try {
       const createdUser = await createNewUser(payload);
-      const otp = generate(6, { digits: true });
+      const otp = generate(6, {
+        digits: true,
+        lowerCaseAlphabets: false,
+        specialChars: false,
+        upperCaseAlphabets: false,
+      });
       await Promise.all([
         redisClient.set(
           `user:otp:${createdUser?._id}`,
@@ -91,6 +96,33 @@ const UserServices = {
         throw error;
       } else {
         throw new Error('Unknown Error Occurred In Process Verify Service');
+      }
+    }
+  },
+  processResend: async ({ email, name, _id }: IUser) => {
+    try {
+      const otp = generate(6, {
+        digits: true,
+        lowerCaseAlphabets: false,
+        specialChars: false,
+        upperCaseAlphabets: false,
+      });
+      await Promise.all([
+        redisClient.set(`user:otp:${_id}`, otp, 'EX', otpExpireAt * 60),
+        sendVerificationEmail({
+          email: email as string,
+          expirationTime: otpExpireAt,
+          name: name as string,
+          otp,
+        }),
+      ]);
+
+      return;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Process Resend Service');
       }
     }
   },

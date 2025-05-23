@@ -18,12 +18,14 @@ const {
   handleCheck,
   handleRefreshTokens,
   handleLogout,
+  handleResend,
 } = UserControllers;
 
 const router = Router();
 
 router.route('/auth/signup').post(isSignupUserExist, handleSignUp);
 router.route('/auth/verify').post(isUserExist, checkOtp, handleVerifyUser);
+router.route('/auth/resend').post(isUserExist, handleResend);
 router
   .route('/auth/login')
   .post(isUserExistAndVerified, checkPassword, handleLogin);
