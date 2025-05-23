@@ -3,6 +3,6 @@ export default interface CookieOptions {
   secure: boolean;
   sameSite: 'none' | 'lax' | 'strict';
   path: string;
-  domain: string;
+  domain?: string;
   maxAge?: number;
 }
