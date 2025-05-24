@@ -5,6 +5,7 @@ export const corsWhiteList = [
 ];
 export const accessTokenExpiresIn = '30min';
 export const refreshTokenExpiresIn = '7d';
+export const recoverSessionExpiresIn = '1d';
 export const otpExpireAt = 2;
 export const refreshTokenBlackListExpAt = 30;
 export const accessTokenBlackListExpAt = 1;

@@ -22,4 +22,9 @@ export interface IUserPayload {
   refreshToken?: string;
 }
 
+export interface IProcessFindUserReturn {
+  rs_id: string;
+  r_stp1: string;
+}
+
 export default IUser;

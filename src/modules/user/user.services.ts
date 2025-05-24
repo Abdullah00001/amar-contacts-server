@@ -1,5 +1,8 @@
 import UserRepositories from '@/modules/user/user.repositories';
-import IUser, { IUserPayload } from '@/modules/user/user.interfaces';
+import IUser, {
+  IProcessFindUserReturn,
+  IUserPayload,
+} from '@/modules/user/user.interfaces';
 import { generate } from 'otp-generator';
 import redisClient from '@/configs/redis.configs';
 import {
@@ -16,7 +19,8 @@ import CalculationUtils from '@/utils/calculation.utils';
 const { createNewUser, verifyUser, findUserByEmail } = UserRepositories;
 const { calculateMilliseconds } = CalculationUtils;
 
-const { generateAccessToken, generateRefreshToken } = JwtUtils;
+const { generateAccessToken, generateRefreshToken, generateRecoverToken } =
+  JwtUtils;
 
 const UserServices = {
   processSignup: async (payload: IUserPayload) => {
@@ -174,8 +178,29 @@ const UserServices = {
       }
     }
   },
-  processFindUser: ({}: IUser) => {
+  processFindUser: ({
+    _id,
+    email,
+    isVerified,
+    name,
+    avatar,
+  }: IUser): IProcessFindUserReturn => {
     try {
+      const rs_id = generateRecoverToken({
+        userId: _id as Types.ObjectId,
+        email,
+        isVerified,
+        name,
+        avatar,
+      });
+      const r_stp1 = generateRecoverToken({
+        userId: _id as Types.ObjectId,
+        email,
+        isVerified,
+        name,
+        avatar,
+      });
+      return { rs_id: rs_id as string, r_stp1: r_stp1 as string };
     } catch (error) {
       if (error instanceof Error) {
         throw error;

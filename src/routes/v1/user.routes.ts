@@ -8,6 +8,7 @@ const {
   isUserExistAndVerified,
   checkPassword,
   isUserExist,
+  isUserVerified,
   checkAccessToken,
   checkRefreshToken,
 } = UserMiddlewares;
@@ -19,6 +20,7 @@ const {
   handleRefreshTokens,
   handleLogout,
   handleResend,
+  handleFindUser,
 } = UserControllers;
 
 const router = Router();
@@ -32,6 +34,6 @@ router
 router.route('/auth/check').post(checkAccessToken, handleCheck);
 router.route('/auth/refresh').post(checkRefreshToken, handleRefreshTokens);
 router.route('/auth/logout').post(checkRefreshToken, handleLogout);
-router.route('/auth/find').post(isUserExist,);
+router.route('/auth/recover/find').post(isUserExist, isUserVerified, handleFindUser);
 
 export default router;

@@ -3,6 +3,7 @@ import logger from '@/configs/logger.configs';
 import UserServices from '@/modules/user/user.services';
 import IUser from '@/modules/user/user.interfaces';
 import cookieOption from '@/utils/cookie.utils';
+import { env } from 'process';
 
 const {
   processSignup,
@@ -11,7 +12,7 @@ const {
   processTokens,
   processLogout,
   processResend,
-  processFindUser
+  processFindUser,
 } = UserServices;
 
 const UserControllers = {
@@ -135,11 +136,19 @@ const UserControllers = {
   },
   handleFindUser: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const user = req.user;
-      const { } = processFindUser(user);
+      const user = req.user as IUser;
+      const { r_stp1, rs_id } = processFindUser(user);
+      res.cookie('rs_id', rs_id, cookieOption(null, 1));
+      res.cookie('r_stp1', r_stp1, {
+        httpOnly: false,
+        secure: env.NODE_ENV === 'production',
+        sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+        path: '/',
+        maxAge: 1 * 24 * 60 * 60 * 1000,
+      });
       res.status(200).json({
         status: 'success',
-        message: 'Token refreshed',
+        message: 'User Found',
       });
       return;
     } catch (error) {

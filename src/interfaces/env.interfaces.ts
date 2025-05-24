@@ -4,6 +4,7 @@ export default interface IEnvConfig {
   NODE_ENV: string;
   JWT_ACCESS_TOKEN_SECRET_KEY: string;
   JWT_REFRESH_TOKEN_SECRET_KEY: string;
+  JWT_RECOVER_SESSION_TOKEN_SECRET_KEY: string;
   SMTP_HOST: string;
   SMTP_PORT: number;
   SMTP_USER: string;

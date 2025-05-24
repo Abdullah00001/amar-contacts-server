@@ -84,6 +84,26 @@ const UserMiddlewares = {
       }
     }
   },
+  isUserVerified: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { isVerified } = req.user as IUser;
+      if (!isVerified) {
+        res
+          .status(403)
+          .json({ success: false, message: 'Email With User Not Verified' });
+        return;
+      }
+      next();
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error(error);
+        next(error);
+      } else {
+        logger.error('Unknown Error Occurred In isUserVerified Middleware');
+        next(error);
+      }
+    }
+  },
   checkOtp: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { otp } = req.body;
