@@ -11,6 +11,7 @@ const {
   processTokens,
   processLogout,
   processResend,
+  processFindUser
 } = UserServices;
 
 const UserControllers = {
@@ -121,6 +122,21 @@ const UserControllers = {
       res.clearCookie('refreshtoken');
       res.cookie('accesstoken', accessToken, cookieOption(30, null));
       res.cookie('refreshtoken', refreshToken, cookieOption(null, 7));
+      res.status(200).json({
+        status: 'success',
+        message: 'Token refreshed',
+      });
+      return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleFindUser: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const user = req.user;
+      const { } = processFindUser(user);
       res.status(200).json({
         status: 'success',
         message: 'Token refreshed',

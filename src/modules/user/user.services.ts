@@ -8,13 +8,15 @@ import {
   refreshTokenBlackListExpAt,
 } from '@/const';
 import sendVerificationEmail from '@/utils/sendVerificationEmail.utils';
-import { generateAccessToken, generateRefreshToken } from '@/utils/jwt.utils';
+import JwtUtils from '@/utils/jwt.utils';
 import { Types } from 'mongoose';
 import { IRefreshTokenPayload } from '@/interfaces/jwtPayload.interfaces';
 import CalculationUtils from '@/utils/calculation.utils';
 
 const { createNewUser, verifyUser, findUserByEmail } = UserRepositories;
 const { calculateMilliseconds } = CalculationUtils;
+
+const { generateAccessToken, generateRefreshToken } = JwtUtils;
 
 const UserServices = {
   processSignup: async (payload: IUserPayload) => {
@@ -169,6 +171,16 @@ const UserServices = {
         throw error;
       } else {
         throw new Error('Unknown Error Occurred In Process Logout Service');
+      }
+    }
+  },
+  processFindUser: ({}: IUser) => {
+    try {
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Process Find User Service');
       }
     }
   },

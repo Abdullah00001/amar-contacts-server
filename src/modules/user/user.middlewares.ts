@@ -4,10 +4,11 @@ import UserRepositories from '@/modules/user/user.repositories';
 import { NextFunction, Request, Response } from 'express';
 import IUser from '@/modules/user/user.interfaces';
 import { comparePassword } from '@/utils/password.utils';
-import { verifyAccessToken, verifyRefreshToken } from '@/utils/jwt.utils';
 import { TokenPayload } from '@/interfaces/jwtPayload.interfaces';
+import JwtUtils from '@/utils/jwt.utils';
 
 const { findUserByEmail } = UserRepositories;
+const { verifyAccessToken, verifyRefreshToken } = JwtUtils;
 
 const UserMiddlewares = {
   isSignupUserExist: async (

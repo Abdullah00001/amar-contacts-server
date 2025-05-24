@@ -32,5 +32,6 @@ router
 router.route('/auth/check').post(checkAccessToken, handleCheck);
 router.route('/auth/refresh').post(checkRefreshToken, handleRefreshTokens);
 router.route('/auth/logout').post(checkRefreshToken, handleLogout);
+router.route('/auth/find').post(isUserExist,);
 
 export default router;
