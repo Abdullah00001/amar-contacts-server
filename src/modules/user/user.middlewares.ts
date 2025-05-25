@@ -8,7 +8,7 @@ import { TokenPayload } from '@/interfaces/jwtPayload.interfaces';
 import JwtUtils from '@/utils/jwt.utils';
 
 const { findUserByEmail } = UserRepositories;
-const { verifyAccessToken, verifyRefreshToken } = JwtUtils;
+const { verifyAccessToken, verifyRefreshToken, verifyRecoverToken } = JwtUtils;
 
 const UserMiddlewares = {
   isSignupUserExist: async (
@@ -235,6 +235,53 @@ const UserMiddlewares = {
       } else {
         logger.error(
           'Unknown Error Occurred In Check Refresh Token Middleware'
+        );
+        next(error);
+      }
+    }
+  },
+  checkRecoverToken: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const token = req?.cookies?.rs_id;
+      if (!token) {
+        res.status(401).json({
+          status: 'error',
+          message: 'Unauthorize Request',
+          error: 'Access Token is missing',
+        });
+        return;
+      }
+      const isBlacklisted = await redisClient.get(
+        `blacklist:recovertoken:${token}`
+      );
+      if (isBlacklisted) {
+        res.status(403).json({
+          status: 'error',
+          message: 'Permission Denied',
+        });
+        return;
+      }
+      const decoded = verifyRecoverToken(token);
+      if (!decoded) {
+        res.status(403).json({
+          status: 'error',
+          message: 'Permission Denied',
+        });
+        return;
+      }
+      req.decoded = decoded as TokenPayload;
+      next();
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error(error);
+        next(error);
+      } else {
+        logger.error(
+          'Unknown Error Occurred In Check Recover Token Middleware'
         );
         next(error);
       }

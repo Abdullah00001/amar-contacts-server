@@ -5,6 +5,15 @@ export interface IVerificationEmailData {
   otp: string;
 }
 
+export interface IRecoveryEmailTemplateData {
+  name: string;
+  otp: string;
+  expirationTime: number;
+  year: number;
+  companyName: string;
+  supportEmail: string;
+}
+
 export interface IAccountVerificationParam {
   otp: string;
   email: string;

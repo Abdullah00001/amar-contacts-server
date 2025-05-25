@@ -13,6 +13,7 @@ const {
   processLogout,
   processResend,
   processFindUser,
+  processSentRecoverAccountOtp,
 } = UserServices;
 
 const UserControllers = {
@@ -138,6 +139,8 @@ const UserControllers = {
     try {
       const user = req.user as IUser;
       const { r_stp1, rs_id } = processFindUser(user);
+      res.clearCookie('r_stp2');
+      res.clearCookie('r_stp3');
       res.cookie('rs_id', rs_id, cookieOption(null, 1));
       res.cookie('r_stp1', r_stp1, {
         httpOnly: false,
@@ -149,6 +152,41 @@ const UserControllers = {
       res.status(200).json({
         status: 'success',
         message: 'User Found',
+      });
+      return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleSentRecoverOtp: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { email, isVerified, name, userId, avatar } = req.decoded;
+      const r_stp1 = req.cookies?.r_stp1;
+      const { r_stp2 } = await processSentRecoverAccountOtp({
+        email,
+        isVerified,
+        name,
+        userId,
+        avatar,
+        r_stp1,
+      });
+      res.clearCookie('r_stp1');
+      res.cookie('r_stp2', r_stp2, {
+        httpOnly: false,
+        secure: env.NODE_ENV === 'production',
+        sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+        path: '/',
+        maxAge: 1 * 24 * 60 * 60 * 1000,
+      });
+      res.status(200).json({
+        status: 'success',
+        message: 'Recover Otp Send Successful',
       });
       return;
     } catch (error) {

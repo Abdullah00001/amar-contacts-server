@@ -27,4 +27,13 @@ export interface IProcessFindUserReturn {
   r_stp1: string;
 }
 
+export interface IProcessSentRecoverAccountOtpPayload {
+  userId: Types.ObjectId;
+  email: string;
+  isVerified: boolean;
+  name: string;
+  avatar?: string;
+  r_stp1: string;
+}
+
 export default IUser;

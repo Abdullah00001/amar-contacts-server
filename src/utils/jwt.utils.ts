@@ -71,6 +71,18 @@ const JwtUtils = {
       return null;
     }
   },
+  verifyRecoverToken: (token: string): JwtPayload | null => {
+    try {
+      const decoded = jwt.verify(
+        token,
+        env.JWT_RECOVER_SESSION_TOKEN_SECRET_KEY
+      ) as JwtPayload;
+      return decoded;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  },
 };
 
 export default JwtUtils;
