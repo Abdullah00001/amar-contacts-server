@@ -1,10 +1,10 @@
-export const verificationEmailTemplate = `
+export const accountRecoveryEmailTemplate = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>OTP Verification</title>
+  <title>Account Recovery - OTP Verification</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -186,9 +186,9 @@ export const verificationEmailTemplate = `
 <body>
   <div class="email-container">
     <div class="email-header">
-      <div class="header-icon">✉️</div>
-      <h1 class="header-title">Verify Your Account</h1>
-      <p class="header-subtitle">Welcome to Amar Contacts</p>
+      <div class="header-icon">🔐</div>
+      <h1 class="header-title">Account Recovery</h1>
+      <p class="header-subtitle">Secure access verification required</p>
     </div>
 
     <div class="email-body">
@@ -197,11 +197,11 @@ export const verificationEmailTemplate = `
       </div>
 
       <div class="message">
-        Thank you for signing up to Amar Contacts. To complete your registration and secure your account, please use the verification code below.
+        We received a request to recover your account. To proceed with the account recovery process, please use the verification code below.
       </div>
 
       <div class="otp-container">
-        <div class="otp-label">Your Verification Code</div>
+        <div class="otp-label">Your Recovery Code</div>
         <div class="otp-code">{{otp}}</div>
       </div>
 
@@ -212,28 +212,21 @@ export const verificationEmailTemplate = `
       <div class="security-notice">
         <div class="security-notice-title">🛡️ Security Notice</div>
         <p class="security-notice-text">
-          Keep this code confidential. Never share it with anyone. Our team will never ask for your verification code.
+          Never share this code with anyone. Our team will never ask for your verification code via phone, email, or any other method.
         </p>
       </div>
 
       <div class="message">
-        If you didn't create an account with us, please ignore this email and no further action is required.
+        If you didn't request account recovery, please ignore this email and ensure your account remains secure. Consider changing your password if you suspect unauthorized access.
       </div>
     </div>
 
     <div class="footer">
       <p class="footer-text">
-        &copy; Amar Contacts. All rights reserved.
+        &copy; {{year}} {{companyName}}. All rights reserved.
       </p>
-      
-      <div class="footer-links">
-        <a href="https://amar-contacts.vercel.app/">Visit Website</a>
-        <a href="https://amar-contacts.vercel.app/support">Need Help?</a>
-        <a href="https://amar-contacts.vercel.app/privacy">Privacy Policy</a>
-      </div>
-
       <div class="help-text">
-        Having trouble? Contact our support team for assistance.
+        Having trouble? Contact our support team at <a href="mailto:{{supportEmail}}" style="color: #667eea;">{{supportEmail}}</a>
       </div>
     </div>
   </div>

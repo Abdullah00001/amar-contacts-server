@@ -6,6 +6,7 @@ export interface TokenPayload extends JwtPayload {
   email: string;
   isVerified: boolean;
   name: string;
+  avatar?: string;
 }
 
 export interface IRefreshTokenPayload extends TokenPayload {

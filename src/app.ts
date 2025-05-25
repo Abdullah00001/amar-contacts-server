@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import v1Routes from '@/routes/v1';
 import { baseUrl } from '@/const';
 import multer from 'multer';
+import userAgent from 'express-useragent';
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(multer().none());
 app.use(cookieParser());
 app.use(cors(corsConfiguration));
+app.use(userAgent.express());
 app.use(
   morgan(morganMessageFormat, {
     stream: {

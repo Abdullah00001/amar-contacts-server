@@ -3,6 +3,11 @@ import logger from '@/configs/logger.configs';
 import UserServices from '@/modules/user/user.services';
 import IUser from '@/modules/user/user.interfaces';
 import cookieOption from '@/utils/cookie.utils';
+import { env } from 'process';
+import UserMiddlewares from '@/modules/user/user.middlewares';
+import { getLocationFromIP } from '@/const';
+
+const { getRealIP } = UserMiddlewares;
 
 const {
   processSignup,
@@ -11,6 +16,11 @@ const {
   processTokens,
   processLogout,
   processResend,
+  processFindUser,
+  processSentRecoverAccountOtp,
+  processVerifyOtp,
+  processReSentRecoverAccountOtp,
+  processResetPassword,
 } = UserServices;
 
 const UserControllers = {
@@ -124,6 +134,162 @@ const UserControllers = {
       res.status(200).json({
         status: 'success',
         message: 'Token refreshed',
+      });
+      return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleFindUser: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const user = req.user as IUser;
+      const { r_stp1, rs_id } = processFindUser(user);
+      res.clearCookie('r_stp2');
+      res.clearCookie('r_stp3');
+      res.cookie('rs_id', rs_id, cookieOption(null, 1));
+      res.cookie('r_stp1', r_stp1, {
+        httpOnly: false,
+        secure: env.NODE_ENV === 'production',
+        sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+        path: '/',
+        maxAge: 1 * 24 * 60 * 60 * 1000,
+      });
+      res.status(200).json({
+        status: 'success',
+        message: 'User Found',
+      });
+      return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleSentRecoverOtp: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { email, isVerified, name, userId, avatar } = req.decoded;
+      const r_stp1 = req.cookies?.r_stp1;
+      const { r_stp2 } = await processSentRecoverAccountOtp({
+        email,
+        isVerified,
+        name,
+        userId,
+        avatar,
+        r_stp1,
+      });
+      res.clearCookie('r_stp1');
+      res.cookie('r_stp2', r_stp2, {
+        httpOnly: false,
+        secure: env.NODE_ENV === 'production',
+        sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+        path: '/',
+        maxAge: 1 * 24 * 60 * 60 * 1000,
+      });
+      res.status(200).json({
+        status: 'success',
+        message: 'Recover Otp Send Successful',
+      });
+      return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleVerifyRecoverOtp: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { email, isVerified, name, userId, avatar } = req.decoded;
+      const r_stp2 = req.cookies?.r_stp2;
+      const { r_stp3 } = await processVerifyOtp({
+        email,
+        isVerified,
+        name,
+        userId,
+        avatar,
+        r_stp2,
+      });
+      res.clearCookie('r_stp2');
+      res.cookie('r_stp3', r_stp3, {
+        httpOnly: false,
+        secure: env.NODE_ENV === 'production',
+        sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+        path: '/',
+        maxAge: 1 * 24 * 60 * 60 * 1000,
+      });
+      res.status(200).json({
+        status: 'success',
+        message: 'OTP verification successful',
+      });
+      return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleResendRecoverOtp: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { email, name, userId } = req.decoded;
+      await processReSentRecoverAccountOtp({ email, name, userId });
+      res.status(200).json({
+        status: 'success',
+        message: 'OTP resent successful',
+      });
+      return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleResetPassword: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { password } = req.body;
+      const { email, name, userId, isVerified } = req.decoded;
+      const r_stp3 = req.cookies?.r_stp3;
+      const rs_id = req.cookies?.rs_id;
+      const ipAddress = getRealIP(req) as string;
+      const locationInfo = await getLocationFromIP(ipAddress);
+      const device = `${req?.useragent?.browser} ${req?.useragent?.version} on ${req?.useragent?.os}`;
+      const { accesstoken, refreshtoken } = await processResetPassword({
+        email,
+        name,
+        userId,
+        isVerified,
+        r_stp3,
+        rs_id,
+        device,
+        ipAddress,
+        location: locationInfo
+          ? `${locationInfo.city}, ${locationInfo.regionName}, ${locationInfo.country}`
+          : 'Unknown',
+        password,
+      });
+      res.clearCookie('r_stp3');
+      res.clearCookie('rs_id');
+      res.cookie('accesstoken', accesstoken, cookieOption(30, null));
+      res.cookie('refreshtoken', refreshtoken, cookieOption(null, 7));
+      res.status(200).json({
+        status: 'success',
+        message: 'Password Reset Successful',
       });
       return;
     } catch (error) {

@@ -1,20 +1,37 @@
 import UserRepositories from '@/modules/user/user.repositories';
-import IUser, { IUserPayload } from '@/modules/user/user.interfaces';
+import IUser, {
+  IProcessFindUserReturn,
+  IProcessRecoverAccountPayload,
+  IResetPasswordServicePayload,
+  IResetPasswordServiceReturnPayload,
+  IUserPayload,
+} from '@/modules/user/user.interfaces';
 import { generate } from 'otp-generator';
 import redisClient from '@/configs/redis.configs';
 import {
   accessTokenBlackListExpAt,
   otpExpireAt,
+  RecoverTokenBlackListExpAt,
   refreshTokenBlackListExpAt,
 } from '@/const';
-import sendVerificationEmail from '@/utils/sendVerificationEmail.utils';
-import { generateAccessToken, generateRefreshToken } from '@/utils/jwt.utils';
+import SendEmail from '@/utils/sendEmail.utils';
+import JwtUtils from '@/utils/jwt.utils';
 import { Types } from 'mongoose';
 import { IRefreshTokenPayload } from '@/interfaces/jwtPayload.interfaces';
 import CalculationUtils from '@/utils/calculation.utils';
 
-const { createNewUser, verifyUser, findUserByEmail } = UserRepositories;
+const {
+  sendAccountVerificationOtpEmail,
+  sendAccountRecoverOtpEmail,
+  sendPasswordResetNotificationEmail,
+} = SendEmail;
+
+const { createNewUser, verifyUser, findUserByEmail, resetPassword } =
+  UserRepositories;
 const { calculateMilliseconds } = CalculationUtils;
+
+const { generateAccessToken, generateRefreshToken, generateRecoverToken } =
+  JwtUtils;
 
 const UserServices = {
   processSignup: async (payload: IUserPayload) => {
@@ -30,10 +47,10 @@ const UserServices = {
         redisClient.set(
           `user:otp:${createdUser?._id}`,
           otp,
-          'EX',
-          otpExpireAt * 60
+          'PX',
+          calculateMilliseconds(otpExpireAt, 'minute')
         ),
-        sendVerificationEmail({
+        sendAccountVerificationOtpEmail({
           email: createdUser?.email,
           expirationTime: otpExpireAt,
           name: createdUser?.name,
@@ -70,8 +87,8 @@ const UserServices = {
     await redisClient.set(
       `blacklist:refreshToken:${user?._id}`,
       refreshToken,
-      'EX',
-      calculateMilliseconds(refreshTokenBlackListExpAt, 'milliseconds')
+      'PX',
+      calculateMilliseconds(refreshTokenBlackListExpAt, 'days')
     );
     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
   },
@@ -108,8 +125,13 @@ const UserServices = {
         upperCaseAlphabets: false,
       });
       await Promise.all([
-        redisClient.set(`user:otp:${_id}`, otp, 'EX', otpExpireAt * 60),
-        sendVerificationEmail({
+        redisClient.set(
+          `user:otp:${_id}`,
+          otp,
+          'PX',
+          calculateMilliseconds(otpExpireAt, 'minute')
+        ),
+        sendAccountVerificationOtpEmail({
           email: email as string,
           expirationTime: otpExpireAt,
           name: name as string,
@@ -155,20 +177,226 @@ const UserServices = {
       await redisClient.set(
         `blacklist:refreshToken:${userId}`,
         refreshToken!,
-        'EX',
-        calculateMilliseconds(refreshTokenBlackListExpAt, 'milliseconds')
+        'PX',
+        calculateMilliseconds(refreshTokenBlackListExpAt, 'days')
       );
       await redisClient.set(
         `blacklist:accessToken:${userId}`,
         accessToken!,
-        'EX',
-        calculateMilliseconds(accessTokenBlackListExpAt, 'second')
+        'PX',
+        calculateMilliseconds(accessTokenBlackListExpAt, 'days')
       );
     } catch (error) {
       if (error instanceof Error) {
         throw error;
       } else {
         throw new Error('Unknown Error Occurred In Process Logout Service');
+      }
+    }
+  },
+  processFindUser: ({
+    _id,
+    email,
+    isVerified,
+    name,
+    avatar,
+  }: IUser): IProcessFindUserReturn => {
+    try {
+      const rs_id = generateRecoverToken({
+        userId: _id as Types.ObjectId,
+        email,
+        isVerified,
+        name,
+        avatar,
+      });
+      const r_stp1 = generateRecoverToken({
+        userId: _id as Types.ObjectId,
+        email,
+        isVerified,
+        name,
+        avatar,
+      });
+      return { rs_id: rs_id as string, r_stp1: r_stp1 as string };
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Process Find User Service');
+      }
+    }
+  },
+  processSentRecoverAccountOtp: async ({
+    email,
+    name,
+    isVerified,
+    userId,
+    avatar,
+    r_stp1,
+  }: IProcessRecoverAccountPayload): Promise<IProcessFindUserReturn> => {
+    try {
+      const otp = generate(6, {
+        digits: true,
+        lowerCaseAlphabets: false,
+        specialChars: false,
+        upperCaseAlphabets: false,
+      });
+      await Promise.all([
+        await redisClient.set(
+          `blacklist:recover:r_stp1:${userId}`,
+          r_stp1!,
+          'PX',
+          calculateMilliseconds(RecoverTokenBlackListExpAt, 'day')
+        ),
+        sendAccountRecoverOtpEmail({
+          email,
+          expirationTime: otpExpireAt,
+          name,
+          otp,
+        }),
+        redisClient.set(
+          `user:recover:otp:${userId}`,
+          otp,
+          'PX',
+          calculateMilliseconds(otpExpireAt, 'minute')
+        ),
+      ]);
+      const r_stp2 = generateRecoverToken({
+        userId,
+        email,
+        isVerified: isVerified!,
+        name,
+        avatar,
+      });
+      return { r_stp2: r_stp2 as string };
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Process Find User Service');
+      }
+    }
+  },
+  processVerifyOtp: async ({
+    email,
+    isVerified,
+    name,
+    r_stp2,
+    userId,
+    avatar,
+  }: IProcessRecoverAccountPayload): Promise<IProcessFindUserReturn> => {
+    try {
+      await redisClient.set(
+        `blacklist:recover:r_stp2:${userId}`,
+        r_stp2!,
+        'PX',
+        calculateMilliseconds(RecoverTokenBlackListExpAt, 'day')
+      );
+      const r_stp3 = generateRecoverToken({
+        userId,
+        email,
+        isVerified: isVerified!,
+        name,
+        avatar,
+      });
+      return { r_stp3: r_stp3 as string };
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Process Verify Otp Service');
+      }
+    }
+  },
+  processReSentRecoverAccountOtp: async ({
+    email,
+    name,
+    userId,
+  }: IProcessRecoverAccountPayload) => {
+    try {
+      const otp = generate(6, {
+        digits: true,
+        lowerCaseAlphabets: false,
+        specialChars: false,
+        upperCaseAlphabets: false,
+      });
+      await Promise.all([
+        sendAccountRecoverOtpEmail({
+          email,
+          expirationTime: otpExpireAt,
+          name,
+          otp,
+        }),
+        redisClient.set(
+          `user:recover:otp:${userId}`,
+          otp,
+          'PX',
+          calculateMilliseconds(otpExpireAt, 'minute')
+        ),
+      ]);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Process Find User Service');
+      }
+    }
+  },
+  processResetPassword: async ({
+    device,
+    email,
+    ipAddress,
+    location,
+    name,
+    r_stp3,
+    rs_id,
+    userId,
+    password,
+    isVerified,
+  }: IResetPasswordServicePayload): Promise<IResetPasswordServiceReturnPayload> => {
+    try {
+      const newAccessToken = generateAccessToken({
+        email,
+        isVerified,
+        userId,
+        name,
+      }) as string;
+
+      const newRefreshToken = generateRefreshToken({
+        email,
+        isVerified,
+        userId,
+        name,
+      }) as string;
+      await Promise.all([
+        resetPassword({ userId, password }),
+        redisClient.set(
+          `blacklist:recover:r_stp2:${userId}`,
+          r_stp3,
+          'PX',
+          calculateMilliseconds(RecoverTokenBlackListExpAt, 'day')
+        ),
+        redisClient.set(
+          `blacklist:recover:rs_id:${userId}`,
+          rs_id,
+          'PX',
+          calculateMilliseconds(RecoverTokenBlackListExpAt, 'day')
+        ),
+        sendPasswordResetNotificationEmail({
+          device,
+          email,
+          ipAddress,
+          location,
+          name,
+        }),
+      ]);
+      return { accesstoken: newAccessToken, refreshtoken: newRefreshToken };
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error(
+          'Unknown Error Occurred In Process Reset Password Service'
+        );
       }
     }
   },

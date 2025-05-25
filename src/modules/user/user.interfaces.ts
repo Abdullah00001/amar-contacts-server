@@ -22,4 +22,66 @@ export interface IUserPayload {
   refreshToken?: string;
 }
 
+export interface IProcessFindUserReturn {
+  rs_id?: string;
+  r_stp1?: string;
+  r_stp2?: string;
+  r_stp3?: string;
+}
+
+export interface IProcessRecoverAccountPayload {
+  userId: Types.ObjectId;
+  email: string;
+  isVerified?: boolean;
+  name: string;
+  avatar?: string;
+  r_stp1?: string;
+  r_stp2?: string;
+  r_stp3?: string;
+  rs_id?: string;
+  password?: string;
+}
+
+export interface IResetPasswordRepositoryPayload {
+  password: string;
+  userId: Types.ObjectId;
+}
+
+export interface IResetPasswordServicePayload {
+  userId: Types.ObjectId;
+  email: string;
+  password: string;
+  r_stp3: string;
+  rs_id: string;
+  location: string;
+  device: string;
+  ipAddress: string;
+  name: string;
+  isVerified: boolean;
+}
+
+export interface IResetPasswordServiceReturnPayload {
+  accesstoken: string;
+  refreshtoken: string;
+}
+
+export interface IResetPasswordSendEmailPayload {
+  email: string;
+  location: string;
+  device: string;
+  ipAddress: string;
+  name: string;
+}
+
+export interface IPasswordResetNotificationTemplateData {
+  supportEmail: string;
+  dashboardUrl: string;
+  profileUrl: string;
+  location: string;
+  device: string;
+  ipAddress: string;
+  resetDateTime: string;
+  name: string;
+}
+
 export default IUser;

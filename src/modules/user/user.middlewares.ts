@@ -4,10 +4,11 @@ import UserRepositories from '@/modules/user/user.repositories';
 import { NextFunction, Request, Response } from 'express';
 import IUser from '@/modules/user/user.interfaces';
 import { comparePassword } from '@/utils/password.utils';
-import { verifyAccessToken, verifyRefreshToken } from '@/utils/jwt.utils';
 import { TokenPayload } from '@/interfaces/jwtPayload.interfaces';
+import JwtUtils from '@/utils/jwt.utils';
 
 const { findUserByEmail } = UserRepositories;
+const { verifyAccessToken, verifyRefreshToken, verifyRecoverToken } = JwtUtils;
 
 const UserMiddlewares = {
   isSignupUserExist: async (
@@ -83,11 +84,57 @@ const UserMiddlewares = {
       }
     }
   },
+  isUserVerified: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { isVerified } = req.user as IUser;
+      if (!isVerified) {
+        res
+          .status(403)
+          .json({ success: false, message: 'Email With User Not Verified' });
+        return;
+      }
+      next();
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error(error);
+        next(error);
+      } else {
+        logger.error('Unknown Error Occurred In isUserVerified Middleware');
+        next(error);
+      }
+    }
+  },
   checkOtp: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { otp } = req.body;
       const user = req?.user as IUser;
       const storedOtp = await redisClient.get(`user:otp:${user?._id}`);
+      if (!storedOtp) {
+        res
+          .status(400)
+          .json({ success: false, message: 'Otp has been expired' });
+        return;
+      }
+      if (storedOtp !== otp) {
+        res.status(400).json({ success: false, message: 'Invalid otp' });
+        return;
+      }
+      next();
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error(error);
+        next(error);
+      } else {
+        logger.error('Unknown Error Occurred In Check Otp Middleware');
+        next(error);
+      }
+    }
+  },
+  checkRecoverOtp: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { otp } = req.body;
+      const { userId } = req.decoded;
+      const storedOtp = await redisClient.get(`user:recover:otp:${userId}`);
       if (!storedOtp) {
         res
           .status(400)
@@ -218,6 +265,74 @@ const UserMiddlewares = {
         next(error);
       }
     }
+  },
+  checkRecoverToken: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const token = req?.cookies?.rs_id;
+      if (!token) {
+        res.status(401).json({
+          status: 'error',
+          message: 'Unauthorize Request',
+          error: 'Access Token is missing',
+        });
+        return;
+      }
+      const isBlacklisted = await redisClient.get(
+        `blacklist:recovertoken:${token}`
+      );
+      if (isBlacklisted) {
+        res.status(403).json({
+          status: 'error',
+          message: 'Permission Denied',
+        });
+        return;
+      }
+      const decoded = verifyRecoverToken(token);
+      if (!decoded) {
+        res.status(403).json({
+          status: 'error',
+          message: 'Permission Denied',
+        });
+        return;
+      }
+      req.decoded = decoded as TokenPayload;
+      next();
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error(error);
+        next(error);
+      } else {
+        logger.error(
+          'Unknown Error Occurred In Check Recover Token Middleware'
+        );
+        next(error);
+      }
+    }
+  },
+  handleVerifyOtp: (req: Request, res: Response, next: NextFunction) => {
+    try {
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error(error);
+        next(error);
+      } else {
+        logger.error(
+          'Unknown Error Occurred In Check Recover Token Middleware'
+        );
+        next(error);
+      }
+    }
+  },
+  getRealIP: (req: Request) => {
+    return (
+      req.headers['x-forwarded-for'] ||
+      req.headers['x-real-ip'] ||
+      req.socket.remoteAddress
+    );
   },
 };
 
