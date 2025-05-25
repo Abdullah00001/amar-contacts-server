@@ -6,8 +6,13 @@ import {
   IRecoveryEmailTemplateData,
   IVerificationEmailData,
 } from '@/interfaces/verificationEmailData.interfaces';
-import { supportEmail } from '@/const';
+import { dashboardUrl, profileUrl, supportEmail } from '@/const';
 import { accountRecoveryEmailTemplate } from '@/templates/accountRecoveryEmailTemplate';
+import {
+  IPasswordResetNotificationTemplateData,
+  IResetPasswordSendEmailPayload,
+} from '@/modules/user/user.interfaces';
+import { passwordResetNotificationTemplate } from '@/templates/passwordResetNotificationTemplate';
 
 const SendEmail = {
   sendAccountVerificationOtpEmail: async (data: IVerificationEmailData) => {
@@ -61,6 +66,43 @@ const SendEmail = {
       } else {
         throw new Error(
           'Unknown Error Occurred In Send Account Recover Otp Email Utility'
+        );
+      }
+    }
+  },
+  sendPasswordResetNotificationEmail: async ({
+    device,
+    email,
+    ipAddress,
+    location,
+    name,
+  }: IResetPasswordSendEmailPayload) => {
+    try {
+      const data: IPasswordResetNotificationTemplateData = {
+        dashboardUrl,
+        device,
+        ipAddress,
+        location,
+        name,
+        profileUrl,
+        resetDateTime: new Date().toISOString(),
+        supportEmail,
+      };
+      const template = Handlebars.compile(passwordResetNotificationTemplate);
+      const personalizedTemplate = template(data);
+      await mailTransporter.sendMail(
+        mailOption(
+          email,
+          'Security Alert: Your Password Was Reset',
+          personalizedTemplate
+        )
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error(
+          'Unknown Error Occurred In Send Password Reset Notification Email Utility'
         );
       }
     }

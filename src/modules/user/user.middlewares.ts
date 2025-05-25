@@ -327,6 +327,13 @@ const UserMiddlewares = {
       }
     }
   },
+  getRealIP: (req: Request) => {
+    return (
+      req.headers['x-forwarded-for'] ||
+      req.headers['x-real-ip'] ||
+      req.socket.remoteAddress
+    );
+  },
 };
 
 export default UserMiddlewares;

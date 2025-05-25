@@ -26,6 +26,7 @@ const {
   handleSentRecoverOtp,
   handleVerifyRecoverOtp,
   handleResendRecoverOtp,
+  handleResetPassword,
 } = UserControllers;
 
 const router = Router();
@@ -52,5 +53,9 @@ router
 router
   .route('/auth/recover/resent')
   .post(checkRecoverToken, handleResendRecoverOtp);
+
+router
+  .route('/auth/recover/reset')
+  .patch(checkRecoverToken, handleResetPassword);
 
 export default router;

@@ -4,6 +4,10 @@ import UserServices from '@/modules/user/user.services';
 import IUser from '@/modules/user/user.interfaces';
 import cookieOption from '@/utils/cookie.utils';
 import { env } from 'process';
+import UserMiddlewares from '@/modules/user/user.middlewares';
+import { getLocationFromIP } from '@/const';
+
+const { getRealIP } = UserMiddlewares;
 
 const {
   processSignup,
@@ -16,6 +20,7 @@ const {
   processSentRecoverAccountOtp,
   processVerifyOtp,
   processReSentRecoverAccountOtp,
+  processResetPassword,
 } = UserServices;
 
 const UserControllers = {
@@ -243,6 +248,48 @@ const UserControllers = {
       res.status(200).json({
         status: 'success',
         message: 'OTP resent successful',
+      });
+      return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleResetPassword: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { password } = req.body;
+      const { email, name, userId, isVerified } = req.decoded;
+      const r_stp3 = req.cookies?.r_stp3;
+      const rs_id = req.cookies?.rs_id;
+      const ipAddress = getRealIP(req) as string;
+      const locationInfo = await getLocationFromIP(ipAddress);
+      const device = `${req?.useragent?.browser} ${req?.useragent?.version} on ${req?.useragent?.os}`;
+      const { accesstoken, refreshtoken } = await processResetPassword({
+        email,
+        name,
+        userId,
+        isVerified,
+        r_stp3,
+        rs_id,
+        device,
+        ipAddress,
+        location: locationInfo
+          ? `${locationInfo.city}, ${locationInfo.regionName}, ${locationInfo.country}`
+          : 'Unknown',
+        password,
+      });
+      res.clearCookie('r_stp3');
+      res.clearCookie('rs_id');
+      res.cookie('accesstoken', accesstoken, cookieOption(30, null));
+      res.cookie('refreshtoken', refreshtoken, cookieOption(null, 7));
+      res.status(200).json({
+        status: 'success',
+        message: 'Password Reset Successful',
       });
       return;
     } catch (error) {

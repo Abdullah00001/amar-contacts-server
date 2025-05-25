@@ -1,5 +1,8 @@
 import Profile from '@/modules/profile/profile.models';
-import { IUserPayload } from '@/modules/user/user.interfaces';
+import {
+  IResetPasswordRepositoryPayload,
+  IUserPayload,
+} from '@/modules/user/user.interfaces';
 import User from '@/modules/user/user.models';
 import { startSession } from 'mongoose';
 
@@ -50,6 +53,24 @@ const UserRepositories = {
         throw error;
       } else {
         throw new Error('Unknown Error Occurred In User Verify Operation');
+      }
+    }
+  },
+  resetPassword: async ({
+    password,
+    userId,
+  }: IResetPasswordRepositoryPayload) => {
+    try {
+      await User.findByIdAndUpdate(
+        userId,
+        { $set: { password } },
+        { new: true }
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Password Reset Operation');
       }
     }
   },
