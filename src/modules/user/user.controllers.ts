@@ -14,6 +14,8 @@ const {
   processResend,
   processFindUser,
   processSentRecoverAccountOtp,
+  processVerifyOtp,
+  processReSentRecoverAccountOtp,
 } = UserServices;
 
 const UserControllers = {
@@ -187,6 +189,60 @@ const UserControllers = {
       res.status(200).json({
         status: 'success',
         message: 'Recover Otp Send Successful',
+      });
+      return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleVerifyRecoverOtp: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { email, isVerified, name, userId, avatar } = req.decoded;
+      const r_stp2 = req.cookies?.r_stp2;
+      const { r_stp3 } = await processVerifyOtp({
+        email,
+        isVerified,
+        name,
+        userId,
+        avatar,
+        r_stp2,
+      });
+      res.clearCookie('r_stp2');
+      res.cookie('r_stp3', r_stp3, {
+        httpOnly: false,
+        secure: env.NODE_ENV === 'production',
+        sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+        path: '/',
+        maxAge: 1 * 24 * 60 * 60 * 1000,
+      });
+      res.status(200).json({
+        status: 'success',
+        message: 'OTP verification successful',
+      });
+      return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleResendRecoverOtp: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { email, name, userId } = req.decoded;
+      await processReSentRecoverAccountOtp({ email, name, userId });
+      res.status(200).json({
+        status: 'success',
+        message: 'OTP resent successful',
       });
       return;
     } catch (error) {

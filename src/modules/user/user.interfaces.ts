@@ -23,17 +23,23 @@ export interface IUserPayload {
 }
 
 export interface IProcessFindUserReturn {
-  rs_id: string;
-  r_stp1: string;
+  rs_id?: string;
+  r_stp1?: string;
+  r_stp2?: string;
+  r_stp3?: string;
 }
 
-export interface IProcessSentRecoverAccountOtpPayload {
+export interface IProcessRecoverAccountPayload {
   userId: Types.ObjectId;
   email: string;
-  isVerified: boolean;
+  isVerified?: boolean;
   name: string;
   avatar?: string;
-  r_stp1: string;
+  r_stp1?: string;
+  r_stp2?: string;
+  r_stp3?: string;
+  rs_id?: string;
+  password?: string;
 }
 
 export default IUser;

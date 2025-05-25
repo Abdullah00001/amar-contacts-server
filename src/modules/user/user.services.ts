@@ -1,7 +1,7 @@
 import UserRepositories from '@/modules/user/user.repositories';
 import IUser, {
   IProcessFindUserReturn,
-  IProcessSentRecoverAccountOtpPayload,
+  IProcessRecoverAccountPayload,
   IUserPayload,
 } from '@/modules/user/user.interfaces';
 import { generate } from 'otp-generator';
@@ -226,7 +226,7 @@ const UserServices = {
     userId,
     avatar,
     r_stp1,
-  }: IProcessSentRecoverAccountOtpPayload) => {
+  }: IProcessRecoverAccountPayload): Promise<IProcessFindUserReturn> => {
     try {
       const otp = generate(6, {
         digits: true,
@@ -237,7 +237,7 @@ const UserServices = {
       await Promise.all([
         await redisClient.set(
           `blacklist:recover:r_stp1:${userId}`,
-          r_stp1,
+          r_stp1!,
           'PX',
           calculateMilliseconds(RecoverTokenBlackListExpAt, 'day')
         ),
@@ -257,11 +257,76 @@ const UserServices = {
       const r_stp2 = generateRecoverToken({
         userId,
         email,
-        isVerified,
+        isVerified: isVerified!,
         name,
         avatar,
       });
       return { r_stp2: r_stp2 as string };
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Process Find User Service');
+      }
+    }
+  },
+  processVerifyOtp: async ({
+    email,
+    isVerified,
+    name,
+    r_stp2,
+    userId,
+    avatar,
+  }: IProcessRecoverAccountPayload): Promise<IProcessFindUserReturn> => {
+    try {
+      await redisClient.set(
+        `blacklist:recover:r_stp2:${userId}`,
+        r_stp2!,
+        'PX',
+        calculateMilliseconds(RecoverTokenBlackListExpAt, 'day')
+      );
+      const r_stp3 = generateRecoverToken({
+        userId,
+        email,
+        isVerified: isVerified!,
+        name,
+        avatar,
+      });
+      return { r_stp3: r_stp3 as string };
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Process Verify Otp Service');
+      }
+    }
+  },
+  processReSentRecoverAccountOtp: async ({
+    email,
+    name,
+    userId,
+  }: IProcessRecoverAccountPayload) => {
+    try {
+      const otp = generate(6, {
+        digits: true,
+        lowerCaseAlphabets: false,
+        specialChars: false,
+        upperCaseAlphabets: false,
+      });
+      await Promise.all([
+        sendAccountRecoverOtpEmail({
+          email,
+          expirationTime: otpExpireAt,
+          name,
+          otp,
+        }),
+        redisClient.set(
+          `user:recover:otp:${userId}`,
+          otp,
+          'PX',
+          calculateMilliseconds(otpExpireAt, 'minute')
+        ),
+      ]);
     } catch (error) {
       if (error instanceof Error) {
         throw error;

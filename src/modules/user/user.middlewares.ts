@@ -130,6 +130,32 @@ const UserMiddlewares = {
       }
     }
   },
+  checkRecoverOtp: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { otp } = req.body;
+      const { userId } = req.decoded;
+      const storedOtp = await redisClient.get(`user:recover:otp:${userId}`);
+      if (!storedOtp) {
+        res
+          .status(400)
+          .json({ success: false, message: 'Otp has been expired' });
+        return;
+      }
+      if (storedOtp !== otp) {
+        res.status(400).json({ success: false, message: 'Invalid otp' });
+        return;
+      }
+      next();
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error(error);
+        next(error);
+      } else {
+        logger.error('Unknown Error Occurred In Check Otp Middleware');
+        next(error);
+      }
+    }
+  },
   checkPassword: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { password } = req.user as IUser;
@@ -275,6 +301,20 @@ const UserMiddlewares = {
       }
       req.decoded = decoded as TokenPayload;
       next();
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error(error);
+        next(error);
+      } else {
+        logger.error(
+          'Unknown Error Occurred In Check Recover Token Middleware'
+        );
+        next(error);
+      }
+    }
+  },
+  handleVerifyOtp: (req: Request, res: Response, next: NextFunction) => {
+    try {
     } catch (error) {
       if (error instanceof Error) {
         logger.error(error);

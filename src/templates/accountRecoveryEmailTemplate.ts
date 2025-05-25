@@ -225,13 +225,6 @@ export const accountRecoveryEmailTemplate = `
       <p class="footer-text">
         &copy; {{year}} {{companyName}}. All rights reserved.
       </p>
-      
-      <div class="footer-links">
-        <a href="{{supportUrl}}">Need Help?</a>
-        <a href="{{securityUrl}}">Security Center</a>
-        <a href="{{websiteUrl}}">Visit Website</a>
-      </div>
-
       <div class="help-text">
         Having trouble? Contact our support team at <a href="mailto:{{supportEmail}}" style="color: #667eea;">{{supportEmail}}</a>
       </div>
