@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [v1.1.0] - 2025-05-26
+
+### Added
+
+- Introduced complete "Forgot Password" feature:
+  - Endpoint to **find user** by email.
+  - Endpoint to **verify user identity** and send a secure OTP to the registered email.
+  - Endpoint to **verify OTP** submitted by the user.
+  - Endpoint to **reset password** securely after successful OTP verification.
+
+### Fixed
+
+- All forgot password flow endpoints tested and verified.
+- Addressed potential bugs in OTP handling and password reset logic during development.
+
+### Notes
+
+- This version enhances account recovery functionality and improves user experience in case of forgotten credentials.
+- Passwords are now correctly hashed during recovery to ensure secure storage.
+
 ## [v1.0.5] - 2025-05-23
 
 ### Fixed
