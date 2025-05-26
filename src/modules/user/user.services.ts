@@ -19,6 +19,7 @@ import JwtUtils from '@/utils/jwt.utils';
 import { Types } from 'mongoose';
 import { IRefreshTokenPayload } from '@/interfaces/jwtPayload.interfaces';
 import CalculationUtils from '@/utils/calculation.utils';
+import { hashPassword } from '@/utils/password.utils';
 
 const {
   sendAccountVerificationOtpEmail,
@@ -354,6 +355,7 @@ const UserServices = {
     isVerified,
   }: IResetPasswordServicePayload): Promise<IResetPasswordServiceReturnPayload> => {
     try {
+      const hashed = (await hashPassword(password)) as string;
       const newAccessToken = generateAccessToken({
         email,
         isVerified,
@@ -368,7 +370,7 @@ const UserServices = {
         name,
       }) as string;
       await Promise.all([
-        resetPassword({ userId, password }),
+        resetPassword({ userId, password: hashed }),
         redisClient.set(
           `blacklist:recover:r_stp2:${userId}`,
           r_stp3,

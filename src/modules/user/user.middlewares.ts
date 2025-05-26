@@ -313,20 +313,6 @@ const UserMiddlewares = {
       }
     }
   },
-  handleVerifyOtp: (req: Request, res: Response, next: NextFunction) => {
-    try {
-    } catch (error) {
-      if (error instanceof Error) {
-        logger.error(error);
-        next(error);
-      } else {
-        logger.error(
-          'Unknown Error Occurred In Check Recover Token Middleware'
-        );
-        next(error);
-      }
-    }
-  },
   getRealIP: (req: Request) => {
     return (
       req.headers['x-forwarded-for'] ||
