@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [v1.1.1] - 2025-05-26
+
+### 🔧 Fixed
+- Resolved `Set-Cookie` issues in both local and production environments by ensuring correct `SameSite`, `Secure`, and `Path` configurations.
+- Fixed TypeScript error in `sharedCookieOption` by explicitly typing `SameSite` property as `'none' | 'lax' | 'strict'`.
+- Corrected optional parameter handling in `cookieOption` utility to safely accept `null` values.
+
+### ✨ Improved
+- Standardized cookie names and behavior across all auth and recovery flows.
+- Cleaned up redundant cookie clearing logic with reusable `sharedCookieOption`.
+- Enhanced error logging for more precise debugging in user controller methods.
+
+### ✅ Compatibility
+- Verified proper cross-origin support with CORS `credentials: true` and frontend `withCredentials: true`.
+- Confirmed token cookie delivery under HTTPS with correct `SameSite: 'none'` and `Secure: true` setup.
+
 ## [v1.1.0] - 2025-05-26
 
 ### Added
