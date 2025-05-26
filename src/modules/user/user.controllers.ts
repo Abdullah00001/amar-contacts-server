@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import logger from '@/configs/logger.configs';
 import UserServices from '@/modules/user/user.services';
 import IUser from '@/modules/user/user.interfaces';
-import cookieOption from '@/utils/cookie.utils';
+import cookieOption, { sharedCookieOption } from '@/utils/cookie.utils';
 import { env } from 'process';
 import UserMiddlewares from '@/modules/user/user.middlewares';
 import { getLocationFromIP } from '@/const';
@@ -51,6 +51,10 @@ const UserControllers = {
     try {
       const user = req?.user as IUser;
       const { accessToken, refreshToken } = await processVerifyUser(user);
+      res.clearCookie('r_stp1', sharedCookieOption());
+      res.clearCookie('r_stp2', sharedCookieOption());
+      res.clearCookie('r_stp3', sharedCookieOption());
+      res.clearCookie('rs_id', cookieOption(null, 1));
       res.cookie('accesstoken', accessToken, cookieOption(30, null));
       res.cookie('refreshtoken', refreshToken, cookieOption(null, 7));
       res.status(200).json({
@@ -78,6 +82,10 @@ const UserControllers = {
   handleLogin: (req: Request, res: Response, next: NextFunction) => {
     try {
       const { accessToken, refreshToken } = processLogin(req.user as IUser);
+      res.clearCookie('r_stp1', sharedCookieOption());
+      res.clearCookie('r_stp2', sharedCookieOption());
+      res.clearCookie('r_stp3', sharedCookieOption());
+      res.clearCookie('rs_id', cookieOption(null, 1));
       res.cookie('accesstoken', accessToken, cookieOption(30, null));
       res.cookie('refreshtoken', refreshToken, cookieOption(null, 7));
       res.status(200).json({
@@ -100,8 +108,8 @@ const UserControllers = {
         refreshToken: refreshtoken,
         userId,
       });
-      res.clearCookie('accesstoken');
-      res.clearCookie('refreshtoken');
+      res.clearCookie('accesstoken', cookieOption(30, null));
+      res.clearCookie('refreshtoken', cookieOption(null, 7));
       res.status(200).json({
         status: 'success',
         message: 'Logout successful',
@@ -128,7 +136,7 @@ const UserControllers = {
         name,
         refreshToken: currentRefreshToken,
       });
-      res.clearCookie('refreshtoken');
+      res.clearCookie('refreshtoken', cookieOption(null, 7));
       res.cookie('accesstoken', accessToken, cookieOption(30, null));
       res.cookie('refreshtoken', refreshToken, cookieOption(null, 7));
       res.status(200).json({
@@ -146,16 +154,12 @@ const UserControllers = {
     try {
       const user = req.user as IUser;
       const { r_stp1, rs_id } = processFindUser(user);
-      res.clearCookie('r_stp2');
-      res.clearCookie('r_stp3');
+      res.clearCookie('r_stp1', sharedCookieOption());
+      res.clearCookie('r_stp2', sharedCookieOption());
+      res.clearCookie('r_stp3', sharedCookieOption());
+      res.clearCookie('rs_id', cookieOption(null, 1));
       res.cookie('rs_id', rs_id, cookieOption(null, 1));
-      res.cookie('r_stp1', r_stp1, {
-        httpOnly: false,
-        secure: env.NODE_ENV === 'production',
-        sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
-        path: '/',
-        maxAge: 1 * 24 * 60 * 60 * 1000,
-      });
+      res.cookie('r_stp1', r_stp1, sharedCookieOption());
       res.status(200).json({
         status: 'success',
         message: 'User Found',
@@ -183,14 +187,9 @@ const UserControllers = {
         avatar,
         r_stp1,
       });
-      res.clearCookie('r_stp1');
-      res.cookie('r_stp2', r_stp2, {
-        httpOnly: false,
-        secure: env.NODE_ENV === 'production',
-        sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
-        path: '/',
-        maxAge: 1 * 24 * 60 * 60 * 1000,
-      });
+      res.clearCookie('r_stp1', sharedCookieOption());
+      res.clearCookie('r_stp3', sharedCookieOption());
+      res.cookie('r_stp2', r_stp2, sharedCookieOption());
       res.status(200).json({
         status: 'success',
         message: 'Recover Otp Send Successful',
@@ -218,14 +217,9 @@ const UserControllers = {
         avatar,
         r_stp2,
       });
-      res.clearCookie('r_stp2');
-      res.cookie('r_stp3', r_stp3, {
-        httpOnly: false,
-        secure: env.NODE_ENV === 'production',
-        sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
-        path: '/',
-        maxAge: 1 * 24 * 60 * 60 * 1000,
-      });
+      res.clearCookie('r_stp2', sharedCookieOption());
+      res.clearCookie('r_stp3', sharedCookieOption());
+      res.cookie('r_stp3', r_stp3, sharedCookieOption());
       res.status(200).json({
         status: 'success',
         message: 'OTP verification successful',
@@ -283,8 +277,10 @@ const UserControllers = {
           : 'Unknown',
         password,
       });
-      res.clearCookie('r_stp3');
-      res.clearCookie('rs_id');
+      res.clearCookie('r_stp1', sharedCookieOption());
+      res.clearCookie('r_stp2', sharedCookieOption());
+      res.clearCookie('r_stp3', sharedCookieOption());
+      res.clearCookie('rs_id', cookieOption(null, 1));
       res.cookie('accesstoken', accesstoken, cookieOption(30, null));
       res.cookie('refreshtoken', refreshtoken, cookieOption(null, 7));
       res.status(200).json({

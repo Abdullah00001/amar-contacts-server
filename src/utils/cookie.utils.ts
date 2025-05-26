@@ -22,4 +22,14 @@ const cookieOption = (
   return option;
 };
 
+export const sharedCookieOption = () => {
+  return {
+    httpOnly: false,
+    secure: env.NODE_ENV === 'production',
+    sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+    path: '/',
+    maxAge: 1 * 24 * 60 * 60 * 1000,
+  } as CookieOptions;
+};
+
 export default cookieOption;
