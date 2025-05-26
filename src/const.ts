@@ -4,6 +4,7 @@ export const corsWhiteList = [
   'http://localhost:5173',
   'http://localhost:3000',
   'https://amar-contacts.vercel.app',
+  'https://amar-contacts.onrender.com',
 ];
 export const accessTokenExpiresIn = '30min';
 export const refreshTokenExpiresIn = '7d';
