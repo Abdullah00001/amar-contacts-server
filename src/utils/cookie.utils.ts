@@ -1,24 +1,36 @@
 import { env } from '@/env';
 import CookieOptions from '@/interfaces/cookie.interface';
 
-const cookieOption = (
-  min?: number | null,
-  day?: number | null
-): CookieOptions => {
+const cookieOption = (expiresIn: string): CookieOptions => {
   const option: CookieOptions = {
     httpOnly: true,
     secure: env.NODE_ENV === 'production',
     sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
     path: '/',
   };
-
-  if (min) {
-    option.maxAge = min * 60 * 1000;
+  const match = expiresIn.match(/^(\d+)(ms|s|m|h|d)$/);
+  if (!match) throw new Error('Invalid expiresIn format');
+  const value = Number(match[1]);
+  const unit = match[2];
+  switch (unit) {
+    case 'ms':
+      option.maxAge = value;
+      break;
+    case 's':
+      option.maxAge = value * 1000;
+      break;
+    case 'm':
+      option.maxAge = value * 60 * 1000;
+      break;
+    case 'h':
+      option.maxAge = value * 60 * 60 * 1000;
+      break;
+    case 'd':
+      option.maxAge = value * 24 * 60 * 60 * 1000;
+      break;
+    default:
+      throw new Error('Unsupported time unit');
   }
-  if (day) {
-    option.maxAge = day * 24 * 60 * 60 * 1000;
-  }
-
   return option;
 };
 

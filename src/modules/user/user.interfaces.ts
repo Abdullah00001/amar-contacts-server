@@ -23,7 +23,6 @@ export interface IUserPayload {
 }
 
 export interface IProcessFindUserReturn {
-  rs_id?: string;
   r_stp1?: string;
   r_stp2?: string;
   r_stp3?: string;
@@ -52,7 +51,6 @@ export interface IResetPasswordServicePayload {
   email: string;
   password: string;
   r_stp3: string;
-  rs_id: string;
   location: string;
   device: string;
   ipAddress: string;
@@ -61,8 +59,8 @@ export interface IResetPasswordServicePayload {
 }
 
 export interface IResetPasswordServiceReturnPayload {
-  accesstoken: string;
-  refreshtoken: string;
+  accessToken: string;
+  refreshToken: string;
 }
 
 export interface IResetPasswordSendEmailPayload {

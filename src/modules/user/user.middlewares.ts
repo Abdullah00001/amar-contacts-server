@@ -266,24 +266,17 @@ const UserMiddlewares = {
       }
     }
   },
-  checkRecoverToken: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  checkR_stp1Token: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const token = req?.cookies?.rs_id;
+      const token = req?.cookies?.r_stp1;
       if (!token) {
         res.status(401).json({
           status: 'error',
           message: 'Unauthorize Request',
-          error: 'Access Token is missing',
         });
         return;
       }
-      const isBlacklisted = await redisClient.get(
-        `blacklist:recovertoken:${token}`
-      );
+      const isBlacklisted = await redisClient.get(`blacklist:r_stp1:${token}`);
       if (isBlacklisted) {
         res.status(403).json({
           status: 'error',
@@ -306,9 +299,83 @@ const UserMiddlewares = {
         logger.error(error);
         next(error);
       } else {
-        logger.error(
-          'Unknown Error Occurred In Check Recover Token Middleware'
-        );
+        logger.error('Unknown Error Occurred In Check r_stp1 Token Middleware');
+        next(error);
+      }
+    }
+  },
+  checkR_stp2Token: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const token = req?.cookies?.r_stp2;
+      if (!token) {
+        res.status(401).json({
+          status: 'error',
+          message: 'Unauthorize Request',
+        });
+        return;
+      }
+      const isBlacklisted = await redisClient.get(`blacklist:r_stp2:${token}`);
+      if (isBlacklisted) {
+        res.status(403).json({
+          status: 'error',
+          message: 'Permission Denied',
+        });
+        return;
+      }
+      const decoded = verifyRecoverToken(token);
+      if (!decoded) {
+        res.status(403).json({
+          status: 'error',
+          message: 'Permission Denied',
+        });
+        return;
+      }
+      req.decoded = decoded as TokenPayload;
+      next();
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error(error);
+        next(error);
+      } else {
+        logger.error('Unknown Error Occurred In Check r_stp2 Token Middleware');
+        next(error);
+      }
+    }
+  },
+  checkR_stp3Token: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const token = req?.cookies?.r_stp3;
+      if (!token) {
+        res.status(401).json({
+          status: 'error',
+          message: 'Unauthorize Request',
+        });
+        return;
+      }
+      const isBlacklisted = await redisClient.get(`blacklist:r_stp3:${token}`);
+      if (isBlacklisted) {
+        res.status(403).json({
+          status: 'error',
+          message: 'Permission Denied',
+        });
+        return;
+      }
+      const decoded = verifyRecoverToken(token);
+      if (!decoded) {
+        res.status(403).json({
+          status: 'error',
+          message: 'Permission Denied',
+        });
+        return;
+      }
+      req.decoded = decoded as TokenPayload;
+      next();
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error(error);
+        next(error);
+      } else {
+        logger.error('Unknown Error Occurred In Check r_stp3 Token Middleware');
         next(error);
       }
     }
