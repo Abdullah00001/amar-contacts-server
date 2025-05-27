@@ -9,10 +9,10 @@ import IUser, {
 import { generate } from 'otp-generator';
 import redisClient from '@/configs/redis.configs';
 import {
-  accessTokenBlackListExpAt,
+  accessTokenExpiresIn,
   otpExpireAt,
-  RecoverTokenBlackListExpAt,
-  refreshTokenBlackListExpAt,
+  recoverSessionExpiresIn,
+  refreshTokenExpiresIn,
 } from '@/const';
 import SendEmail from '@/utils/sendEmail.utils';
 import JwtUtils from '@/utils/jwt.utils';
@@ -29,7 +29,7 @@ const {
 
 const { createNewUser, verifyUser, findUserByEmail, resetPassword } =
   UserRepositories;
-const { calculateMilliseconds } = CalculationUtils;
+const { expiresInTimeUnitToMs, calculateMilliseconds } = CalculationUtils;
 
 const { generateAccessToken, generateRefreshToken, generateRecoverToken } =
   JwtUtils;
@@ -89,7 +89,7 @@ const UserServices = {
       `blacklist:refreshToken:${user?._id}`,
       refreshToken,
       'PX',
-      calculateMilliseconds(refreshTokenBlackListExpAt, 'days')
+      expiresInTimeUnitToMs(refreshTokenExpiresIn)
     );
     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
   },
@@ -179,13 +179,13 @@ const UserServices = {
         `blacklist:refreshToken:${userId}`,
         refreshToken!,
         'PX',
-        calculateMilliseconds(refreshTokenBlackListExpAt, 'days')
+        expiresInTimeUnitToMs(refreshTokenExpiresIn)
       );
       await redisClient.set(
         `blacklist:accessToken:${userId}`,
         accessToken!,
         'PX',
-        calculateMilliseconds(accessTokenBlackListExpAt, 'days')
+        expiresInTimeUnitToMs(accessTokenExpiresIn)
       );
     } catch (error) {
       if (error instanceof Error) {
@@ -203,13 +203,6 @@ const UserServices = {
     avatar,
   }: IUser): IProcessFindUserReturn => {
     try {
-      const rs_id = generateRecoverToken({
-        userId: _id as Types.ObjectId,
-        email,
-        isVerified,
-        name,
-        avatar,
-      });
       const r_stp1 = generateRecoverToken({
         userId: _id as Types.ObjectId,
         email,
@@ -217,7 +210,7 @@ const UserServices = {
         name,
         avatar,
       });
-      return { rs_id: rs_id as string, r_stp1: r_stp1 as string };
+      return { r_stp1: r_stp1 as string };
     } catch (error) {
       if (error instanceof Error) {
         throw error;
@@ -246,7 +239,7 @@ const UserServices = {
           `blacklist:recover:r_stp1:${userId}`,
           r_stp1!,
           'PX',
-          calculateMilliseconds(RecoverTokenBlackListExpAt, 'day')
+          expiresInTimeUnitToMs(recoverSessionExpiresIn)
         ),
         sendAccountRecoverOtpEmail({
           email,
@@ -290,7 +283,7 @@ const UserServices = {
         `blacklist:recover:r_stp2:${userId}`,
         r_stp2!,
         'PX',
-        calculateMilliseconds(RecoverTokenBlackListExpAt, 'day')
+        expiresInTimeUnitToMs(recoverSessionExpiresIn)
       );
       const r_stp3 = generateRecoverToken({
         userId,
@@ -349,7 +342,6 @@ const UserServices = {
     location,
     name,
     r_stp3,
-    rs_id,
     userId,
     password,
     isVerified,
@@ -375,13 +367,7 @@ const UserServices = {
           `blacklist:recover:r_stp2:${userId}`,
           r_stp3,
           'PX',
-          calculateMilliseconds(RecoverTokenBlackListExpAt, 'day')
-        ),
-        redisClient.set(
-          `blacklist:recover:rs_id:${userId}`,
-          rs_id,
-          'PX',
-          calculateMilliseconds(RecoverTokenBlackListExpAt, 'day')
+          expiresInTimeUnitToMs(recoverSessionExpiresIn)
         ),
         sendPasswordResetNotificationEmail({
           device,
@@ -391,7 +377,7 @@ const UserServices = {
           name,
         }),
       ]);
-      return { accesstoken: newAccessToken, refreshtoken: newRefreshToken };
+      return { accessToken: newAccessToken, refreshToken: newRefreshToken };
     } catch (error) {
       if (error instanceof Error) {
         throw error;

@@ -11,8 +11,10 @@ const {
   isUserVerified,
   checkAccessToken,
   checkRefreshToken,
-  checkRecoverToken,
   checkRecoverOtp,
+  checkR_stp1Token,
+  checkR_stp2Token,
+  checkR_stp3Token,
 } = UserMiddlewares;
 const {
   handleSignUp,
@@ -27,6 +29,9 @@ const {
   handleVerifyRecoverOtp,
   handleResendRecoverOtp,
   handleResetPassword,
+  handleCheckR_Stp1,
+  handleCheckR_Stp2,
+  handleCheckR_Stp3,
 } = UserControllers;
 
 const router = Router();
@@ -41,21 +46,30 @@ router.route('/auth/check').post(checkAccessToken, handleCheck);
 router.route('/auth/refresh').post(checkRefreshToken, handleRefreshTokens);
 router.route('/auth/logout').post(checkRefreshToken, handleLogout);
 router
+  .route('/auth/recover/check/stp1')
+  .post(checkR_stp1Token, handleCheckR_Stp1);
+router
+  .route('/auth/recover/check/stp2')
+  .post(checkR_stp2Token, handleCheckR_Stp2);
+router
+  .route('/auth/recover/check/stp3')
+  .post(checkR_stp3Token, handleCheckR_Stp3);
+router
   .route('/auth/recover/find')
   .post(isUserExist, isUserVerified, handleFindUser);
 router
   .route('/auth/recover/sent-otp')
-  .post(checkRecoverToken, handleSentRecoverOtp);
+  .post(checkR_stp1Token, handleSentRecoverOtp);
 router
   .route('/auth/recover/verify')
-  .post(checkRecoverToken, checkRecoverOtp, handleVerifyRecoverOtp);
+  .post(checkR_stp2Token, checkRecoverOtp, handleVerifyRecoverOtp);
 
 router
   .route('/auth/recover/resent')
-  .post(checkRecoverToken, handleResendRecoverOtp);
+  .post(checkR_stp2Token, handleResendRecoverOtp);
 
 router
   .route('/auth/recover/reset')
-  .patch(checkRecoverToken, handleResetPassword);
+  .patch(checkR_stp3Token, handleResetPassword);
 
 export default router;

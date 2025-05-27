@@ -3,11 +3,17 @@ import logger from '@/configs/logger.configs';
 import UserServices from '@/modules/user/user.services';
 import IUser from '@/modules/user/user.interfaces';
 import cookieOption, { sharedCookieOption } from '@/utils/cookie.utils';
-import { env } from 'process';
 import UserMiddlewares from '@/modules/user/user.middlewares';
-import { getLocationFromIP } from '@/const';
+import {
+  accessTokenExpiresIn,
+  getLocationFromIP,
+  recoverSessionExpiresIn,
+  refreshTokenExpiresIn,
+} from '@/const';
+import CalculationUtils from '@/utils/calculation.utils';
 
 const { getRealIP } = UserMiddlewares;
+const { stringToNumber } = CalculationUtils;
 
 const {
   processSignup,
@@ -51,12 +57,16 @@ const UserControllers = {
     try {
       const user = req?.user as IUser;
       const { accessToken, refreshToken } = await processVerifyUser(user);
-      res.clearCookie('r_stp1', sharedCookieOption());
-      res.clearCookie('r_stp2', sharedCookieOption());
-      res.clearCookie('r_stp3', sharedCookieOption());
-      res.clearCookie('rs_id', cookieOption(null, 1));
-      res.cookie('accesstoken', accessToken, cookieOption(30, null));
-      res.cookie('refreshtoken', refreshToken, cookieOption(null, 7));
+      res.cookie(
+        'accesstoken',
+        accessToken,
+        cookieOption(accessTokenExpiresIn)
+      );
+      res.cookie(
+        'refreshtoken',
+        refreshToken,
+        cookieOption(refreshTokenExpiresIn)
+      );
       res.status(200).json({
         success: true,
         message: 'Email verification successful',
@@ -82,12 +92,16 @@ const UserControllers = {
   handleLogin: (req: Request, res: Response, next: NextFunction) => {
     try {
       const { accessToken, refreshToken } = processLogin(req.user as IUser);
-      res.clearCookie('r_stp1', sharedCookieOption());
-      res.clearCookie('r_stp2', sharedCookieOption());
-      res.clearCookie('r_stp3', sharedCookieOption());
-      res.clearCookie('rs_id', cookieOption(null, 1));
-      res.cookie('accesstoken', accessToken, cookieOption(30, null));
-      res.cookie('refreshtoken', refreshToken, cookieOption(null, 7));
+      res.cookie(
+        'accesstoken',
+        accessToken,
+        cookieOption(accessTokenExpiresIn)
+      );
+      res.cookie(
+        'refreshtoken',
+        refreshToken,
+        cookieOption(refreshTokenExpiresIn)
+      );
       res.status(200).json({
         status: 'success',
         message: 'Login successful',
@@ -108,8 +122,8 @@ const UserControllers = {
         refreshToken: refreshtoken,
         userId,
       });
-      res.clearCookie('accesstoken', cookieOption(30, null));
-      res.clearCookie('refreshtoken', cookieOption(null, 7));
+      res.clearCookie('accesstoken', cookieOption(accessTokenExpiresIn));
+      res.clearCookie('refreshtoken', cookieOption(refreshTokenExpiresIn));
       res.status(200).json({
         status: 'success',
         message: 'Logout successful',
@@ -136,9 +150,17 @@ const UserControllers = {
         name,
         refreshToken: currentRefreshToken,
       });
-      res.clearCookie('refreshtoken', cookieOption(null, 7));
-      res.cookie('accesstoken', accessToken, cookieOption(30, null));
-      res.cookie('refreshtoken', refreshToken, cookieOption(null, 7));
+      res.clearCookie('refreshtoken', cookieOption(refreshTokenExpiresIn));
+      res.cookie(
+        'accesstoken',
+        accessToken,
+        cookieOption(accessTokenExpiresIn)
+      );
+      res.cookie(
+        'refreshtoken',
+        refreshToken,
+        cookieOption(refreshTokenExpiresIn)
+      );
       res.status(200).json({
         status: 'success',
         message: 'Token refreshed',
@@ -153,17 +175,49 @@ const UserControllers = {
   handleFindUser: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const user = req.user as IUser;
-      const { r_stp1, rs_id } = processFindUser(user);
-      res.clearCookie('r_stp1', sharedCookieOption());
-      res.clearCookie('r_stp2', sharedCookieOption());
-      res.clearCookie('r_stp3', sharedCookieOption());
-      res.clearCookie('rs_id', cookieOption(null, 1));
-      res.cookie('rs_id', rs_id, cookieOption(null, 1));
-      res.cookie('r_stp1', r_stp1, sharedCookieOption());
+      const { r_stp1 } = processFindUser(user);
+      res.clearCookie('r_stp2', cookieOption(recoverSessionExpiresIn));
+      res.clearCookie('r_stp3', cookieOption(recoverSessionExpiresIn));
+      res.cookie('r_stp1', r_stp1, cookieOption(recoverSessionExpiresIn));
       res.status(200).json({
         status: 'success',
         message: 'User Found',
+        stepToken: r_stp1,
       });
+      return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleCheckR_Stp1: (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email, name, avatar } = req.decoded;
+      res.status(200).json({
+        status: 'success',
+        data: { email, name, avatar },
+      });
+      return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleCheckR_Stp2: (req: Request, res: Response, next: NextFunction) => {
+    try {
+      res.status(204).send();
+      return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleCheckR_Stp3: (req: Request, res: Response, next: NextFunction) => {
+    try {
+      res.status(204).send();
       return;
     } catch (error) {
       const err = error as Error;
@@ -187,9 +241,9 @@ const UserControllers = {
         avatar,
         r_stp1,
       });
-      res.clearCookie('r_stp1', sharedCookieOption());
-      res.clearCookie('r_stp3', sharedCookieOption());
-      res.cookie('r_stp2', r_stp2, sharedCookieOption());
+      res.clearCookie('r_stp1', cookieOption(recoverSessionExpiresIn));
+      res.clearCookie('r_stp3', cookieOption(recoverSessionExpiresIn));
+      res.cookie('r_stp2', r_stp2, cookieOption(recoverSessionExpiresIn));
       res.status(200).json({
         status: 'success',
         message: 'Recover Otp Send Successful',
@@ -217,9 +271,10 @@ const UserControllers = {
         avatar,
         r_stp2,
       });
-      res.clearCookie('r_stp2', sharedCookieOption());
-      res.clearCookie('r_stp3', sharedCookieOption());
-      res.cookie('r_stp3', r_stp3, sharedCookieOption());
+      res.clearCookie('r_stp1', cookieOption(recoverSessionExpiresIn));
+      res.clearCookie('r_stp2', cookieOption(recoverSessionExpiresIn));
+      res.clearCookie('r_stp3', cookieOption(recoverSessionExpiresIn));
+      res.cookie('r_stp3', r_stp3, cookieOption(recoverSessionExpiresIn));
       res.status(200).json({
         status: 'success',
         message: 'OTP verification successful',
@@ -259,17 +314,15 @@ const UserControllers = {
       const { password } = req.body;
       const { email, name, userId, isVerified } = req.decoded;
       const r_stp3 = req.cookies?.r_stp3;
-      const rs_id = req.cookies?.rs_id;
       const ipAddress = getRealIP(req) as string;
       const locationInfo = await getLocationFromIP(ipAddress);
       const device = `${req?.useragent?.browser} ${req?.useragent?.version} on ${req?.useragent?.os}`;
-      const { accesstoken, refreshtoken } = await processResetPassword({
+      const { accessToken, refreshToken } = await processResetPassword({
         email,
         name,
         userId,
         isVerified,
         r_stp3,
-        rs_id,
         device,
         ipAddress,
         location: locationInfo
@@ -277,12 +330,17 @@ const UserControllers = {
           : 'Unknown',
         password,
       });
-      res.clearCookie('r_stp1', sharedCookieOption());
-      res.clearCookie('r_stp2', sharedCookieOption());
-      res.clearCookie('r_stp3', sharedCookieOption());
-      res.clearCookie('rs_id', cookieOption(null, 1));
-      res.cookie('accesstoken', accesstoken, cookieOption(30, null));
-      res.cookie('refreshtoken', refreshtoken, cookieOption(null, 7));
+      res.clearCookie('r_stp3', cookieOption(recoverSessionExpiresIn));
+      res.cookie(
+        'accesstoken',
+        accessToken,
+        cookieOption(accessTokenExpiresIn)
+      );
+      res.cookie(
+        'refreshtoken',
+        refreshToken,
+        cookieOption(refreshTokenExpiresIn)
+      );
       res.status(200).json({
         status: 'success',
         message: 'Password Reset Successful',
