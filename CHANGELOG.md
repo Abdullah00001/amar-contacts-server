@@ -4,25 +4,61 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [v1.2.0] - 2025-05-27
+
+### ✨ Added
+
+- **Forgot Password Flow**: Implemented full step-based recovery process with secure HTTP-only cookie validation.
+
+  - `POST /auth/recover/find` – Locate user by email/username (includes verification checks)
+  - `POST /auth/recover/sent-otp` – Send OTP for password recovery (requires Step 1 token)
+  - `POST /auth/recover/verify` – Verify submitted OTP (requires Step 2 token)
+  - `POST /auth/recover/resent` – Resend OTP (requires Step 2 token)
+  - `PATCH /auth/recover/reset` – Reset user password (requires Step 3 token)
+
+- **Step Access Check Endpoints** (validate HTTP-only cookie tokens):
+
+  - `POST /auth/recover/check/stp1`
+  - `POST /auth/recover/check/stp2`
+  - `POST /auth/recover/check/stp3`
+
+- **New Utility**: `expiresInTimeUnitToMs()`
+  - Converts time strings like `1d`, `1h`, `30m`, `15s`, `200ms` into milliseconds for consistent expiration handling.
+
+### ♻️ Changed
+
+- **Refactored Cookie Options Utility** for better reusability and configuration across authentication flows.
+- **Reorganized Forgot Password Architecture**:
+  - Modular design using middleware, service, and handler layers.
+  - Improved readability, scalability, and testability.
+
+### 🔧 Notes
+
+- This release is **backward-compatible**.
+- The recovery flow is now secure, modular, and prepared for enhancements like rate limiting, cooldown timers, and detailed analytics.
+
 ## [1.1.2] - 2025-05-26
 
 ### Changed
-- Updated CORS whitelist to include new client URL due to migration from Vercel to Render.
 
+- Updated CORS whitelist to include new client URL due to migration from Vercel to Render.
 
 ## [v1.1.1] - 2025-05-26
 
 ### 🔧 Fixed
+
 - Resolved `Set-Cookie` issues in both local and production environments by ensuring correct `SameSite`, `Secure`, and `Path` configurations.
 - Fixed TypeScript error in `sharedCookieOption` by explicitly typing `SameSite` property as `'none' | 'lax' | 'strict'`.
 - Corrected optional parameter handling in `cookieOption` utility to safely accept `null` values.
 
 ### ✨ Improved
+
 - Standardized cookie names and behavior across all auth and recovery flows.
 - Cleaned up redundant cookie clearing logic with reusable `sharedCookieOption`.
 - Enhanced error logging for more precise debugging in user controller methods.
 
 ### ✅ Compatibility
+
 - Verified proper cross-origin support with CORS `credentials: true` and frontend `withCredentials: true`.
 - Confirmed token cookie delivery under HTTPS with correct `SameSite: 'none'` and `Secure: true` setup.
 
