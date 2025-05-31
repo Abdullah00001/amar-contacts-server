@@ -37,4 +37,8 @@ interface IContacts {
   userId: Types.ObjectId;
 }
 
+export interface IFindContactsPayload{
+  userId:Types.ObjectId
+}
+
 export default IContacts;
