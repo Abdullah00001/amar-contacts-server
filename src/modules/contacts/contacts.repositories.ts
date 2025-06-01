@@ -1,4 +1,5 @@
 import {
+  IChangeFavoriteStatusPayload,
   ICreateContactPayload,
   IFindContactsPayload,
 } from '@/modules/contacts/contacts.interfaces';
@@ -16,6 +17,26 @@ const ContactsRepositories = {
         throw error;
       } else {
         throw new Error('Unknown Error Occurred In Create Contacts Query');
+      }
+    }
+  },
+  changeFavoriteStatus: async ({
+    contactId,
+    isFavorite,
+  }: IChangeFavoriteStatusPayload) => {
+    try {
+      return await Contacts.findByIdAndUpdate(
+        contactId,
+        { $set: { isFavorite } },
+        { new: true }
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error(
+          'Unknown Error Occurred In Change Contacts Favorite Status Query'
+        );
       }
     }
   },
@@ -42,7 +63,6 @@ const ContactsRepositories = {
           },
         },
       ]);
-      // return await Contacts.find({ userId, isTrashed: false });
     } catch (error) {
       if (error instanceof Error) {
         throw error;

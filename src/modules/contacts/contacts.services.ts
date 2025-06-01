@@ -1,24 +1,74 @@
 import redisClient from '@/configs/redis.configs';
 import {
+  IChangeFavoriteStatusPayload,
   ICreateContactPayload,
   IFindContactsPayload,
 } from '@/modules/contacts/contacts.interfaces';
 import ContactsRepositories from '@/modules/contacts/contacts.repositories';
 import CalculationUtils from '@/utils/calculation.utils';
 
-const { findContacts, findFavorites, findTrash, createContact } =
-  ContactsRepositories;
+const {
+  findContacts,
+  findFavorites,
+  findTrash,
+  createContact,
+  changeFavoriteStatus,
+} = ContactsRepositories;
 const { expiresInTimeUnitToMs } = CalculationUtils;
 
 const ContactsServices = {
-  processCreateContacts: async (payload: ICreateContactPayload) => {
+  processCreateContacts: async ({
+    avatar,
+    email,
+    firstName,
+    birthday,
+    lastName,
+    phone,
+    worksAt,
+    location,
+    userId,
+  }: ICreateContactPayload) => {
     try {
-      return await createContact(payload);
+      const data = await createContact({
+        avatar,
+        email,
+        firstName,
+        birthday,
+        lastName,
+        phone,
+        worksAt,
+        location,
+        userId,
+      });
+      await redisClient.del(`contacts:${userId}`);
+      return data;
     } catch (error) {
       if (error instanceof Error) {
         throw error;
       } else {
         throw new Error('Unknown Error Occurred In Process Create Contacts');
+      }
+    }
+  },
+  processChangeFavoriteStatus: async ({
+    contactId,
+    isFavorite,
+    userId,
+  }: IChangeFavoriteStatusPayload) => {
+    try {
+      const data = await changeFavoriteStatus({ contactId, isFavorite });
+      await Promise.all([
+        redisClient.del(`contacts:${userId}`),
+        redisClient.del(`contacts:${userId}:${contactId}`),
+      ]);
+      return data;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error(
+          'Unknown Error Occurred In Process Change Contacts Favorite Status'
+        );
       }
     }
   },

@@ -37,6 +37,12 @@ interface IContacts {
   userId: Types.ObjectId;
 }
 
+export interface IChangeFavoriteStatusPayload {
+  isFavorite?: boolean;
+  userId?: Types.ObjectId;
+  contactId?: Types.ObjectId;
+}
+
 export interface ICreateContactPayload {
   avatar?: string;
   firstName?: string;
@@ -52,8 +58,8 @@ export interface ICreateContactPayload {
   userId?: Types.ObjectId;
 }
 
-export interface IFindContactsPayload{
-  userId:Types.ObjectId
+export interface IFindContactsPayload {
+  userId: Types.ObjectId;
 }
 
 export default IContacts;

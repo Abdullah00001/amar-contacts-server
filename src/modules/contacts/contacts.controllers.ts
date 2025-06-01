@@ -2,12 +2,14 @@ import logger from '@/configs/logger.configs';
 import ContactsServices from '@/modules/contacts/contacts.services';
 import { Request, Response, NextFunction } from 'express';
 import { ICreateContactPayload } from './contacts.interfaces';
+import mongoose from 'mongoose';
 
 const {
   processFindContacts,
   processFindFavorites,
   processFindTrash,
   processCreateContacts,
+  processChangeFavoriteStatus,
 } = ContactsServices;
 
 const ContactsControllers = {
@@ -45,6 +47,36 @@ const ContactsControllers = {
         data,
       });
       return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleChangeFavoriteStatus: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { userId } = req.decoded;
+      const { id } = req.params;
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).json({ status: 'error', message: 'Invalid faq ID' });
+        return;
+      }
+      const contactId = new mongoose.Types.ObjectId(id);
+      const { isFavorite } = req.body;
+      const data = await processChangeFavoriteStatus({
+        contactId,
+        isFavorite,
+        userId,
+      });
+      res.status(200).json({
+        success: true,
+        message: 'marked contact as favorite',
+        data,
+      });
     } catch (error) {
       const err = error as Error;
       logger.error(err.message);
