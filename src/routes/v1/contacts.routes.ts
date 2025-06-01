@@ -3,12 +3,19 @@ import UserMiddlewares from '@/modules/user/user.middlewares';
 import { Router } from 'express';
 
 const { checkAccessToken } = UserMiddlewares;
-const { handleFindContacts, handleFindFavorites, handleFindTrash } =
-  ContactsControllers;
+const {
+  handleFindContacts,
+  handleFindFavorites,
+  handleFindTrash,
+  handleCreateContact,
+} = ContactsControllers;
 
 const router = Router();
 
-router.route('/contacts').get(checkAccessToken, handleFindContacts);
+router
+  .route('/contacts')
+  .get(checkAccessToken, handleFindContacts)
+  .post(checkAccessToken, handleCreateContact);
 router.route('/frequents').get(checkAccessToken);
 router.route('/favorites').get(checkAccessToken, handleFindFavorites);
 router.route('/trash').get(checkAccessToken, handleFindTrash);

@@ -1,12 +1,27 @@
 import redisClient from '@/configs/redis.configs';
-import { IFindContactsPayload } from '@/modules/contacts/contacts.interfaces';
+import {
+  ICreateContactPayload,
+  IFindContactsPayload,
+} from '@/modules/contacts/contacts.interfaces';
 import ContactsRepositories from '@/modules/contacts/contacts.repositories';
 import CalculationUtils from '@/utils/calculation.utils';
 
-const { findContacts, findFavorites, findTrash } = ContactsRepositories;
+const { findContacts, findFavorites, findTrash, createContact } =
+  ContactsRepositories;
 const { expiresInTimeUnitToMs } = CalculationUtils;
 
 const ContactsServices = {
+  processCreateContacts: async (payload: ICreateContactPayload) => {
+    try {
+      return await createContact(payload);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Process Create Contacts');
+      }
+    }
+  },
   processFindContacts: async ({ userId }: IFindContactsPayload) => {
     try {
       const cachedContacts = await redisClient.get(`contacts:${userId}`);

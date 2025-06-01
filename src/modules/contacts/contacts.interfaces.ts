@@ -37,6 +37,21 @@ interface IContacts {
   userId: Types.ObjectId;
 }
 
+export interface ICreateContactPayload {
+  avatar?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  worksAt?: IWorksAt;
+  location?: ILocation;
+  birthday?: IBirthDate;
+  isFavorite?: boolean;
+  isTrashed?: boolean;
+  trashedAt?: Date;
+  userId?: Types.ObjectId;
+}
+
 export interface IFindContactsPayload{
   userId:Types.ObjectId
 }

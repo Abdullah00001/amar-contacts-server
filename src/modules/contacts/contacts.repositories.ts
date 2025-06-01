@@ -1,10 +1,48 @@
-import { IFindContactsPayload } from '@/modules/contacts/contacts.interfaces';
+import {
+  ICreateContactPayload,
+  IFindContactsPayload,
+} from '@/modules/contacts/contacts.interfaces';
 import Contacts from '@/modules/contacts/contacts.models';
+import mongoose from 'mongoose';
 
 const ContactsRepositories = {
+  createContact: async (payload: ICreateContactPayload) => {
+    try {
+      const newContact = new Contacts(payload);
+      await newContact.save();
+      return newContact;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Create Contacts Query');
+      }
+    }
+  },
   findContacts: async ({ userId }: IFindContactsPayload) => {
     try {
-      return await Contacts.find({ userId, isTrashed: false });
+      const objectUserId = new mongoose.Types.ObjectId(userId);
+      return await Contacts.aggregate([
+        { $match: { userId: objectUserId, isTrashed: false } },
+        {
+          $project: {
+            _id: 1,
+            avatar: 1,
+            name: {
+              $concat: [
+                { $ifNull: ['$firstName', ''] },
+                ' ',
+                { $ifNull: ['$lastName', ''] },
+              ],
+            },
+            isTrashed: 1,
+            isFavorite: 1,
+            email: 1,
+            phone: 1,
+          },
+        },
+      ]);
+      // return await Contacts.find({ userId, isTrashed: false });
     } catch (error) {
       if (error instanceof Error) {
         throw error;
