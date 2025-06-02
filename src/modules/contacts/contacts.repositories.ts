@@ -1,5 +1,6 @@
 import {
   IChangeFavoriteStatusPayload,
+  IChangeTrashStatusPayload,
   ICreateContactPayload,
   IFindContactsPayload,
   IFindOneContactPayload,
@@ -83,6 +84,26 @@ const ContactsRepositories = {
       } else {
         throw new Error(
           'Unknown Error Occurred In Change Contacts Favorite Status Query'
+        );
+      }
+    }
+  },
+  changeTrashStatus: async ({
+    contactId,
+    isTrashed,
+  }: IChangeTrashStatusPayload) => {
+    try {
+      return await Contacts.findByIdAndUpdate(
+        contactId,
+        { $set: { isTrashed, isFavorite: false } },
+        { new: true }
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error(
+          'Unknown Error Occurred In Change Contacts Trash Status Query'
         );
       }
     }

@@ -43,6 +43,12 @@ export interface IChangeFavoriteStatusPayload {
   contactId?: Types.ObjectId;
 }
 
+export interface IChangeTrashStatusPayload {
+  isTrashed?: boolean;
+  userId?: Types.ObjectId;
+  contactId?: Types.ObjectId;
+}
+
 export interface IFindOneContactPayload {
   contactId: Types.ObjectId;
   userId?: Types.ObjectId;

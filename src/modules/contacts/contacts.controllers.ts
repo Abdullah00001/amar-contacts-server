@@ -17,6 +17,7 @@ const {
   processChangeFavoriteStatus,
   processFindOneContact,
   processUpdateOneContact,
+  processChangeTrashStatus,
 } = ContactsServices;
 
 const ContactsControllers = {
@@ -69,7 +70,7 @@ const ContactsControllers = {
       const { userId } = req.decoded;
       const { id } = req.params;
       if (!mongoose.Types.ObjectId.isValid(id)) {
-        res.status(400).json({ status: 'error', message: 'Invalid faq ID' });
+        res.status(400).json({ status: 'error', message: 'Invalid Trash ID' });
         return;
       }
       const contactId = new mongoose.Types.ObjectId(id);
@@ -82,6 +83,36 @@ const ContactsControllers = {
       res.status(200).json({
         success: true,
         message: 'marked contact as favorite',
+        data,
+      });
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleChangeTrashStatus: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { userId } = req.decoded;
+      const { id } = req.params;
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).json({ status: 'error', message: 'Invalid Trash ID' });
+        return;
+      }
+      const contactId = new mongoose.Types.ObjectId(id);
+      const { isTrashed } = req.body;
+      const data = await processChangeTrashStatus({
+        contactId,
+        isTrashed,
+        userId,
+      });
+      res.status(200).json({
+        success: true,
+        message: 'marked contact as trash',
         data,
       });
     } catch (error) {
@@ -137,7 +168,7 @@ const ContactsControllers = {
       const { userId } = req.decoded;
       const { id } = req.params;
       if (!mongoose.Types.ObjectId.isValid(id)) {
-        res.status(400).json({ status: 'error', message: 'Invalid faq ID' });
+        res.status(400).json({ status: 'error', message: 'Invalid Contact ID' });
         return;
       }
       const contactId = new mongoose.Types.ObjectId(id);

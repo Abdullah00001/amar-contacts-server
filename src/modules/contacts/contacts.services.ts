@@ -2,6 +2,7 @@ import redisClient from '@/configs/redis.configs';
 import { serverCacheExpiredIn } from '@/const';
 import {
   IChangeFavoriteStatusPayload,
+  IChangeTrashStatusPayload,
   ICreateContactPayload,
   IFindContactsPayload,
   IFindOneContactPayload,
@@ -18,6 +19,7 @@ const {
   changeFavoriteStatus,
   findOneContact,
   updateOneContact,
+  changeTrashStatus,
 } = ContactsRepositories;
 const { expiresInTimeUnitToMs } = CalculationUtils;
 
@@ -129,6 +131,7 @@ const ContactsServices = {
       await Promise.all([
         redisClient.del(`contacts:${userId}`),
         redisClient.del(`contacts:${userId}:${contactId}`),
+        redisClient.del(`favorites:${userId}`),
       ]);
       return data;
     } catch (error) {
@@ -137,6 +140,30 @@ const ContactsServices = {
       } else {
         throw new Error(
           'Unknown Error Occurred In Process Change Contacts Favorite Status'
+        );
+      }
+    }
+  },
+  processChangeTrashStatus: async ({
+    contactId,
+    isTrashed,
+    userId,
+  }: IChangeTrashStatusPayload) => {
+    try {
+      const data = await changeTrashStatus({ contactId, isTrashed });
+      await Promise.all([
+        redisClient.del(`contacts:${userId}`),
+        redisClient.del(`contacts:${userId}:${contactId}`),
+        redisClient.del(`trash:${userId}`),
+        redisClient.del(`favorites:${userId}`),
+      ]);
+      return data;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error(
+          'Unknown Error Occurred In Process Change Contacts Trash Status'
         );
       }
     }
