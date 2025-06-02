@@ -54,6 +54,16 @@ export interface IBulkChangeTrashStatusPayload {
   contactIds?: Types.ObjectId[];
 }
 
+export interface IDeleteSingleContactPayload {
+  userId?: Types.ObjectId;
+  contactId?: Types.ObjectId;
+}
+
+export interface IDeleteManyContactPayload {
+  userId?: Types.ObjectId;
+  contactIds?: Types.ObjectId[];
+}
+
 export interface IFindOneContactPayload {
   contactId: Types.ObjectId;
   userId?: Types.ObjectId;

@@ -3,6 +3,8 @@ import {
   IChangeFavoriteStatusPayload,
   IChangeTrashStatusPayload,
   ICreateContactPayload,
+  IDeleteManyContactPayload,
+  IDeleteSingleContactPayload,
   IFindContactsPayload,
   IFindOneContactPayload,
   IUpdateOneContactPayload,
@@ -124,6 +126,30 @@ const ContactsRepositories = {
         throw new Error(
           'Unknown Error Occurred In Bulk Change Contacts Trash Status Query'
         );
+      }
+    }
+  },
+  deleteSingleContact: async ({ contactId }: IDeleteSingleContactPayload) => {
+    try {
+      return await Contacts.findByIdAndDelete(contactId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error(
+          'Unknown Error Occurred In Delete Single Contacts Query'
+        );
+      }
+    }
+  },
+  deleteManyContact: async ({ contactIds }: IDeleteManyContactPayload) => {
+    try {
+      return await Contacts.deleteMany({ _id: { $in: contactIds } });
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Delete Many Contacts Query');
       }
     }
   },

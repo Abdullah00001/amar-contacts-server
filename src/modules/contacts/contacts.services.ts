@@ -5,6 +5,8 @@ import {
   IChangeFavoriteStatusPayload,
   IChangeTrashStatusPayload,
   ICreateContactPayload,
+  IDeleteManyContactPayload,
+  IDeleteSingleContactPayload,
   IFindContactsPayload,
   IFindOneContactPayload,
   IUpdateOneContactPayload,
@@ -22,6 +24,8 @@ const {
   updateOneContact,
   changeTrashStatus,
   bulkChangeTrashStatus,
+  deleteManyContact,
+  deleteSingleContact,
 } = ContactsRepositories;
 const { expiresInTimeUnitToMs } = CalculationUtils;
 
@@ -190,6 +194,44 @@ const ContactsServices = {
       } else {
         throw new Error(
           'Unknown Error Occurred In Process Bulk Change Contacts Trash Status'
+        );
+      }
+    }
+  },
+  processDeleteSingleContact: async ({
+    contactId,
+    userId,
+  }: IDeleteSingleContactPayload) => {
+    try {
+      const isDeleted = await deleteSingleContact({ contactId });
+      if (!isDeleted) return null;
+      await redisClient.del(`trash:${userId}`);
+      return isDeleted;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error(
+          'Unknown Error Occurred In Process Delete Single Contacts'
+        );
+      }
+    }
+  },
+  processDeleteManyContact: async ({
+    contactIds,
+    userId,
+  }: IDeleteManyContactPayload) => {
+    try {
+      const isDeleted = await deleteManyContact({ contactIds });
+      if (!isDeleted.deletedCount) return null;
+      await redisClient.del(`trash:${userId}`);
+      return isDeleted;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error(
+          'Unknown Error Occurred In Process Delete Single Contacts'
         );
       }
     }

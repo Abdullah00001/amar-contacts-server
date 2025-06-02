@@ -13,6 +13,8 @@ const {
   handleUpdateOneContact,
   handleChangeTrashStatus,
   handleBulkChangeTrashStatus,
+  handleDeleteManyContact,
+  handleDeleteOneContact,
 } = ContactsControllers;
 
 const router = Router();
@@ -36,7 +38,11 @@ router
   .get(checkAccessToken, handleFindTrash)
   .patch(checkAccessToken, handleBulkChangeTrashStatus);
 router.route('/trash/:id').patch(checkAccessToken, handleChangeTrashStatus);
-router.route('/contacts/delete').delete(checkAccessToken)
-router.route('/contacts/delete/:id').delete(checkAccessToken)
+router
+  .route('/contacts/delete')
+  .delete(checkAccessToken, handleDeleteManyContact);
+router
+  .route('/contacts/delete/:id')
+  .delete(checkAccessToken, handleDeleteOneContact);
 
 export default router;

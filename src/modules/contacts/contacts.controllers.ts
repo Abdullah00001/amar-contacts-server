@@ -19,6 +19,8 @@ const {
   processUpdateOneContact,
   processChangeTrashStatus,
   processBulkChangeTrashStatus,
+  processDeleteManyContact,
+  processDeleteSingleContact,
 } = ContactsServices;
 
 const ContactsControllers = {
@@ -168,10 +170,63 @@ const ContactsControllers = {
       if (oldEtag !== eTag) {
         res.setHeader('Cache-Control', 'private max-age:30');
         res.setHeader('ETag', eTag);
-        res.status(200).json(data);
+        res
+          .status(200)
+          .json({ status: 'success', message: 'contact retrieved', data });
         return;
       }
       res.status(304).end();
+      return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleDeleteOneContact: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { userId } = req.decoded;
+      const { id } = req.params;
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).json({ status: 'error', message: 'Invalid Trash ID' });
+        return;
+      }
+      const contactId = new mongoose.Types.ObjectId(id);
+      const isDeleted = await processDeleteSingleContact({ contactId, userId });
+      if (!isDeleted) {
+        res
+          .status(400)
+          .json({ status: 'error', message: 'delete contact failed' });
+        return;
+      }
+      res.status(200).json({ status: 'success', message: 'contact deleted' });
+      return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleDeleteManyContact: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { userId } = req.decoded;
+      const { contactIds } = req.body;
+      const isDeleted = await processDeleteManyContact({ contactIds, userId });
+      if (!isDeleted) {
+        res
+          .status(400)
+          .json({ status: 'error', message: 'delete contacts failed' });
+        return;
+      }
+      res.status(200).json({ status: 'success', message: 'contacts deleted' });
       return;
     } catch (error) {
       const err = error as Error;
