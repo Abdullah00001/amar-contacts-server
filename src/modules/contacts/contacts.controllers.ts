@@ -16,6 +16,7 @@ const {
   processCreateContacts,
   processChangeFavoriteStatus,
   processFindOneContact,
+  processUpdateOneContact,
 } = ContactsServices;
 
 const ContactsControllers = {
@@ -121,6 +122,52 @@ const ContactsControllers = {
       }
       res.status(304).end();
       return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleUpdateOneContact: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { userId } = req.decoded;
+      const { id } = req.params;
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).json({ status: 'error', message: 'Invalid faq ID' });
+        return;
+      }
+      const contactId = new mongoose.Types.ObjectId(id);
+      const {
+        avatar,
+        birthday,
+        email,
+        firstName,
+        lastName,
+        location,
+        phone,
+        worksAt,
+      } = req.body;
+      const data = await processUpdateOneContact({
+        contactId,
+        avatar,
+        birthday,
+        email,
+        firstName,
+        lastName,
+        location,
+        phone,
+        worksAt,
+        userId,
+      });
+      res.status(200).json({
+        success: true,
+        message: 'contact updated successful',
+        data,
+      });
     } catch (error) {
       const err = error as Error;
       logger.error(err.message);

@@ -3,6 +3,7 @@ import {
   ICreateContactPayload,
   IFindContactsPayload,
   IFindOneContactPayload,
+  IUpdateOneContactPayload,
 } from '@/modules/contacts/contacts.interfaces';
 import Contacts from '@/modules/contacts/contacts.models';
 import mongoose from 'mongoose';
@@ -18,6 +19,40 @@ const ContactsRepositories = {
         throw error;
       } else {
         throw new Error('Unknown Error Occurred In Create Contacts Query');
+      }
+    }
+  },
+  updateOneContact: async ({
+    contactId,
+    avatar,
+    birthday,
+    email,
+    firstName,
+    lastName,
+    location,
+    phone,
+    worksAt,
+  }: IUpdateOneContactPayload) => {
+    try {
+      const payload = {
+        avatar,
+        birthday,
+        email,
+        firstName,
+        lastName,
+        location,
+        phone,
+        worksAt,
+      } as IUpdateOneContactPayload;
+      const data = await Contacts.findByIdAndUpdate(contactId, payload, {
+        new: true,
+      });
+      return data;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Update One Contacts Query');
       }
     }
   },

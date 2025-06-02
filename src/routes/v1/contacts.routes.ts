@@ -10,6 +10,7 @@ const {
   handleCreateContact,
   handleChangeFavoriteStatus,
   handleFindOneContacts,
+  handleUpdateOneContact,
 } = ContactsControllers;
 
 const router = Router();
@@ -22,7 +23,7 @@ router
 router
   .route('/contacts/:id')
   .get(checkAccessToken, handleFindOneContacts)
-  .put(checkAccessToken)
+  .put(checkAccessToken, handleUpdateOneContact)
   .patch(checkAccessToken, handleChangeFavoriteStatus);
 // router.route('/frequents').get(checkAccessToken);
 router.route('/favorites').get(checkAccessToken, handleFindFavorites);

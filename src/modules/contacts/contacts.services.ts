@@ -5,6 +5,7 @@ import {
   ICreateContactPayload,
   IFindContactsPayload,
   IFindOneContactPayload,
+  IUpdateOneContactPayload,
 } from '@/modules/contacts/contacts.interfaces';
 import ContactsRepositories from '@/modules/contacts/contacts.repositories';
 import CalculationUtils from '@/utils/calculation.utils';
@@ -16,6 +17,7 @@ const {
   createContact,
   changeFavoriteStatus,
   findOneContact,
+  updateOneContact,
 } = ContactsRepositories;
 const { expiresInTimeUnitToMs } = CalculationUtils;
 
@@ -75,6 +77,45 @@ const ContactsServices = {
         throw error;
       } else {
         throw new Error('Unknown Error Occurred In Process Find One Contacts');
+      }
+    }
+  },
+  processUpdateOneContact: async ({
+    contactId,
+    avatar,
+    birthday,
+    email,
+    firstName,
+    lastName,
+    location,
+    phone,
+    worksAt,
+    userId,
+  }: IUpdateOneContactPayload) => {
+    try {
+      const data = await updateOneContact({
+        contactId,
+        avatar,
+        birthday,
+        email,
+        firstName,
+        lastName,
+        location,
+        phone,
+        worksAt,
+      });
+      await Promise.all([
+        redisClient.del(`contacts:${userId}`),
+        redisClient.del(`contacts:${userId}:${contactId}`),
+      ]);
+      return data;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error(
+          'Unknown Error Occurred In Process Update One Contacts'
+        );
       }
     }
   },

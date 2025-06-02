@@ -48,6 +48,19 @@ export interface IFindOneContactPayload {
   userId?: Types.ObjectId;
 }
 
+export interface IUpdateOneContactPayload {
+  avatar?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  worksAt?: IWorksAt;
+  location?: ILocation;
+  birthday?: IBirthDate;
+  userId?: Types.ObjectId;
+  contactId: Types.ObjectId;
+}
+
 export interface ICreateContactPayload {
   avatar?: string;
   firstName?: string;
