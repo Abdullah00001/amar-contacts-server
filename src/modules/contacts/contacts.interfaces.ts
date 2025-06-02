@@ -43,6 +43,11 @@ export interface IChangeFavoriteStatusPayload {
   contactId?: Types.ObjectId;
 }
 
+export interface IFindOneContactPayload {
+  contactId: Types.ObjectId;
+  userId?: Types.ObjectId;
+}
+
 export interface ICreateContactPayload {
   avatar?: string;
   firstName?: string;

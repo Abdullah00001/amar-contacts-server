@@ -1,8 +1,10 @@
 import redisClient from '@/configs/redis.configs';
+import { serverCacheExpiredIn } from '@/const';
 import {
   IChangeFavoriteStatusPayload,
   ICreateContactPayload,
   IFindContactsPayload,
+  IFindOneContactPayload,
 } from '@/modules/contacts/contacts.interfaces';
 import ContactsRepositories from '@/modules/contacts/contacts.repositories';
 import CalculationUtils from '@/utils/calculation.utils';
@@ -13,6 +15,7 @@ const {
   findTrash,
   createContact,
   changeFavoriteStatus,
+  findOneContact,
 } = ContactsRepositories;
 const { expiresInTimeUnitToMs } = CalculationUtils;
 
@@ -50,6 +53,31 @@ const ContactsServices = {
       }
     }
   },
+  processFindOneContact: async ({
+    contactId,
+    userId,
+  }: IFindOneContactPayload) => {
+    try {
+      const data = await redisClient.get(`contacts:${userId}:${contactId}`);
+      if (!data) {
+        const data = await findOneContact({ contactId });
+        await redisClient.set(
+          `contacts:${userId}:${contactId}`,
+          JSON.stringify(data),
+          'PX',
+          expiresInTimeUnitToMs(serverCacheExpiredIn)
+        );
+        return data;
+      }
+      return JSON.parse(data);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Process Find One Contacts');
+      }
+    }
+  },
   processChangeFavoriteStatus: async ({
     contactId,
     isFavorite,
@@ -81,7 +109,7 @@ const ContactsServices = {
           `contacts:${userId}`,
           JSON.stringify(data),
           'PX',
-          expiresInTimeUnitToMs('5m')
+          expiresInTimeUnitToMs(serverCacheExpiredIn)
         );
         return data;
       }
@@ -103,7 +131,7 @@ const ContactsServices = {
           `favorites:${userId}`,
           JSON.stringify(data),
           'PX',
-          expiresInTimeUnitToMs('5m')
+          expiresInTimeUnitToMs(serverCacheExpiredIn)
         );
         return data;
       }
@@ -125,7 +153,7 @@ const ContactsServices = {
           `trash:${userId}`,
           JSON.stringify(data),
           'PX',
-          expiresInTimeUnitToMs('5m')
+          expiresInTimeUnitToMs(serverCacheExpiredIn)
         );
         return data;
       }

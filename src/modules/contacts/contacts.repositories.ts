@@ -2,6 +2,7 @@ import {
   IChangeFavoriteStatusPayload,
   ICreateContactPayload,
   IFindContactsPayload,
+  IFindOneContactPayload,
 } from '@/modules/contacts/contacts.interfaces';
 import Contacts from '@/modules/contacts/contacts.models';
 import mongoose from 'mongoose';
@@ -17,6 +18,17 @@ const ContactsRepositories = {
         throw error;
       } else {
         throw new Error('Unknown Error Occurred In Create Contacts Query');
+      }
+    }
+  },
+  findOneContact: async ({ contactId }: IFindOneContactPayload) => {
+    try {
+      return await Contacts.findById(contactId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Find One Contacts Query');
       }
     }
   },

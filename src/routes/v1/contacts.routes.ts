@@ -9,6 +9,7 @@ const {
   handleFindTrash,
   handleCreateContact,
   handleChangeFavoriteStatus,
+  handleFindOneContacts,
 } = ContactsControllers;
 
 const router = Router();
@@ -20,10 +21,12 @@ router
 
 router
   .route('/contacts/:id')
-  .get(checkAccessToken)
+  .get(checkAccessToken, handleFindOneContacts)
+  .put(checkAccessToken)
   .patch(checkAccessToken, handleChangeFavoriteStatus);
 // router.route('/frequents').get(checkAccessToken);
 router.route('/favorites').get(checkAccessToken, handleFindFavorites);
 router.route('/trash').get(checkAccessToken, handleFindTrash);
+router.route('/trash/:id').patch(checkAccessToken);
 
 export default router;

@@ -1,8 +1,13 @@
 import logger from '@/configs/logger.configs';
 import ContactsServices from '@/modules/contacts/contacts.services';
 import { Request, Response, NextFunction } from 'express';
-import { ICreateContactPayload } from './contacts.interfaces';
+import IContacts, {
+  ICreateContactPayload,
+} from '@/modules/contacts/contacts.interfaces';
 import mongoose from 'mongoose';
+import CalculationUtils from '@/utils/calculation.utils';
+
+const { generateEtag } = CalculationUtils;
 
 const {
   processFindContacts,
@@ -10,6 +15,7 @@ const {
   processFindTrash,
   processCreateContacts,
   processChangeFavoriteStatus,
+  processFindOneContact,
 } = ContactsServices;
 
 const ContactsControllers = {
@@ -77,6 +83,44 @@ const ContactsControllers = {
         message: 'marked contact as favorite',
         data,
       });
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleFindOneContacts: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { userId } = req.decoded;
+    const { id } = req.params;
+    const oldEtag = req.headers['if-none-match'];
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).json({ status: 'error', message: 'Invalid contactID' });
+        return;
+      }
+      const contactId = new mongoose.Types.ObjectId(id);
+      const data = (await processFindOneContact({
+        contactId,
+        userId,
+      })) as IContacts;
+      if (!data)
+        res.status(404).json({
+          success: false,
+          message: 'contact not found',
+        });
+      const eTag = generateEtag(data);
+      if (oldEtag !== eTag) {
+        res.setHeader('Cache-Control', 'private max-age:30');
+        res.setHeader('ETag', eTag);
+        res.status(200).json(data);
+        return;
+      }
+      res.status(304).end();
+      return;
     } catch (error) {
       const err = error as Error;
       logger.error(err.message);
