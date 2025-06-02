@@ -1,6 +1,7 @@
 import redisClient from '@/configs/redis.configs';
 import { serverCacheExpiredIn } from '@/const';
 import {
+  IBulkChangeTrashStatusPayload,
   IChangeFavoriteStatusPayload,
   IChangeTrashStatusPayload,
   ICreateContactPayload,
@@ -20,6 +21,7 @@ const {
   findOneContact,
   updateOneContact,
   changeTrashStatus,
+  bulkChangeTrashStatus,
 } = ContactsRepositories;
 const { expiresInTimeUnitToMs } = CalculationUtils;
 
@@ -164,6 +166,30 @@ const ContactsServices = {
       } else {
         throw new Error(
           'Unknown Error Occurred In Process Change Contacts Trash Status'
+        );
+      }
+    }
+  },
+  processBulkChangeTrashStatus: async ({
+    contactIds,
+    userId,
+  }: IBulkChangeTrashStatusPayload) => {
+    try {
+      await bulkChangeTrashStatus({ contactIds });
+      await Promise.all([
+        redisClient.del(`contacts:${userId}`),
+        ...contactIds!?.map((contactId) =>
+          redisClient.del(`contacts:${userId}:${contactId}`)
+        ),
+        redisClient.del(`trash:${userId}`),
+        redisClient.del(`favorites:${userId}`),
+      ]);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error(
+          'Unknown Error Occurred In Process Bulk Change Contacts Trash Status'
         );
       }
     }

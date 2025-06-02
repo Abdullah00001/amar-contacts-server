@@ -18,6 +18,7 @@ const {
   processFindOneContact,
   processUpdateOneContact,
   processChangeTrashStatus,
+  processBulkChangeTrashStatus,
 } = ContactsServices;
 
 const ContactsControllers = {
@@ -121,6 +122,25 @@ const ContactsControllers = {
       next(error);
     }
   },
+  handleBulkChangeTrashStatus: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { userId } = req.decoded;
+      const { contactIds } = req.body;
+      await processBulkChangeTrashStatus({ contactIds, userId });
+      res.status(200).json({
+        success: true,
+        message: 'marked contacts as trash',
+      });
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
   handleFindOneContacts: async (
     req: Request,
     res: Response,
@@ -168,7 +188,9 @@ const ContactsControllers = {
       const { userId } = req.decoded;
       const { id } = req.params;
       if (!mongoose.Types.ObjectId.isValid(id)) {
-        res.status(400).json({ status: 'error', message: 'Invalid Contact ID' });
+        res
+          .status(400)
+          .json({ status: 'error', message: 'Invalid Contact ID' });
         return;
       }
       const contactId = new mongoose.Types.ObjectId(id);

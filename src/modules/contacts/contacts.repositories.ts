@@ -1,4 +1,5 @@
 import {
+  IBulkChangeTrashStatusPayload,
   IChangeFavoriteStatusPayload,
   IChangeTrashStatusPayload,
   ICreateContactPayload,
@@ -95,7 +96,7 @@ const ContactsRepositories = {
     try {
       return await Contacts.findByIdAndUpdate(
         contactId,
-        { $set: { isTrashed, isFavorite: false } },
+        { $set: { isTrashed, isFavorite: false, trashedAt: Date.now() } },
         { new: true }
       );
     } catch (error) {
@@ -104,6 +105,24 @@ const ContactsRepositories = {
       } else {
         throw new Error(
           'Unknown Error Occurred In Change Contacts Trash Status Query'
+        );
+      }
+    }
+  },
+  bulkChangeTrashStatus: async ({
+    contactIds,
+  }: IBulkChangeTrashStatusPayload) => {
+    try {
+      await Contacts.updateMany(
+        { _id: { $in: contactIds } },
+        { $set: { isTrashed: true, isFavorite: false, trashedAt: Date.now() } }
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error(
+          'Unknown Error Occurred In Bulk Change Contacts Trash Status Query'
         );
       }
     }
