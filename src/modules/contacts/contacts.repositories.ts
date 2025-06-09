@@ -7,6 +7,7 @@ import {
   IDeleteSingleContactPayload,
   IFindContactsPayload,
   IFindOneContactPayload,
+  ISearchContact,
   IUpdateOneContactPayload,
 } from '@/modules/contacts/contacts.interfaces';
 import Contacts from '@/modules/contacts/contacts.models';
@@ -205,6 +206,16 @@ const ContactsRepositories = {
         userId,
         isTrashed: true,
       });
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Find Find Trash Query');
+      }
+    }
+  },
+  searchContact: async ({ query, userId }: ISearchContact) => {
+    try {
     } catch (error) {
       if (error instanceof Error) {
         throw error;

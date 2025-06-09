@@ -24,6 +24,8 @@ router
   .get(checkAccessToken, handleFindContacts)
   .post(checkAccessToken, handleCreateContact);
 
+router.route('/search').get(checkAccessToken)
+
 router
   .route('/contacts/:id')
   .get(checkAccessToken, handleFindOneContacts)
