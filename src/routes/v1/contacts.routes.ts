@@ -15,6 +15,7 @@ const {
   handleBulkChangeTrashStatus,
   handleDeleteManyContact,
   handleDeleteOneContact,
+  handleSearchContact,
 } = ContactsControllers;
 
 const router = Router();
@@ -24,13 +25,12 @@ router
   .get(checkAccessToken, handleFindContacts)
   .post(checkAccessToken, handleCreateContact);
 
-router.route('/search').get(checkAccessToken)
+router.route('/search').get(checkAccessToken, handleSearchContact);
 
 router
   .route('/contacts/:id')
   .get(checkAccessToken, handleFindOneContacts)
   .put(checkAccessToken, handleUpdateOneContact);
-// router.route('/frequents').get(checkAccessToken);
 router.route('/favorites').get(checkAccessToken, handleFindFavorites);
 router
   .route('/favorites/:id')
