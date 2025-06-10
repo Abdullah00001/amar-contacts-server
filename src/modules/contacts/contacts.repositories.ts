@@ -7,6 +7,7 @@ import {
   IDeleteSingleContactPayload,
   IFindContactsPayload,
   IFindOneContactPayload,
+  ISearchContact,
   IUpdateOneContactPayload,
 } from '@/modules/contacts/contacts.interfaces';
 import Contacts from '@/modules/contacts/contacts.models';
@@ -205,6 +206,46 @@ const ContactsRepositories = {
         userId,
         isTrashed: true,
       });
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Find Find Trash Query');
+      }
+    }
+  },
+  searchContact: async ({ query, userId }: ISearchContact) => {
+    const regex = new RegExp(query, 'i');
+    const objectUserId = new mongoose.Types.ObjectId(userId);
+    try {
+      return await Contacts.aggregate([
+        {
+          $match: {
+            userId: objectUserId,
+            isTrashed: false,
+            $or: [
+              { firstName: regex },
+              { lastName: regex },
+              { email: regex },
+              { phone: regex },
+            ],
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            avatar: 1,
+            name: {
+              $concat: [
+                { $ifNull: ['$firstName', ''] },
+                ' ',
+                { $ifNull: ['$lastName', ''] },
+              ],
+            },
+            email: 1,
+          },
+        },
+      ]);
     } catch (error) {
       if (error instanceof Error) {
         throw error;

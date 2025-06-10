@@ -1,6 +1,6 @@
 import redisClient from '@/configs/redis.configs';
 import { serverCacheExpiredIn } from '@/const';
-import {
+import IContacts, {
   IBulkChangeTrashStatusPayload,
   IChangeFavoriteStatusPayload,
   IChangeTrashStatusPayload,
@@ -9,6 +9,7 @@ import {
   IDeleteSingleContactPayload,
   IFindContactsPayload,
   IFindOneContactPayload,
+  ISearchContact,
   IUpdateOneContactPayload,
 } from '@/modules/contacts/contacts.interfaces';
 import ContactsRepositories from '@/modules/contacts/contacts.repositories';
@@ -26,6 +27,7 @@ const {
   bulkChangeTrashStatus,
   deleteManyContact,
   deleteSingleContact,
+  searchContact,
 } = ContactsRepositories;
 const { expiresInTimeUnitToMs } = CalculationUtils;
 
@@ -299,6 +301,31 @@ const ContactsServices = {
         throw error;
       } else {
         throw new Error('Unknown Error Occurred In Process Find Trash');
+      }
+    }
+  },
+  processSearchContact: async ({ query, userId }: ISearchContact) => {
+    const regex = new RegExp(query, 'i');
+    try {
+      const cachedContacts = await redisClient.get(`contacts:${userId}`);
+      if (cachedContacts) {
+        const contacts: IContacts[] = JSON.parse(cachedContacts);
+        const filtered = contacts.filter((contact) =>
+          [
+            contact.firstName,
+            contact.lastName,
+            contact.email,
+            contact.phone,
+          ].some((field) => regex.test(field))
+        );
+        return filtered;
+      }
+      return await searchContact({ query, userId });
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Process Search Contact');
       }
     }
   },

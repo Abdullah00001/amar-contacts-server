@@ -21,6 +21,7 @@ const {
   processBulkChangeTrashStatus,
   processDeleteManyContact,
   processDeleteSingleContact,
+  processSearchContact,
 } = ContactsServices;
 
 const ContactsControllers = {
@@ -335,6 +336,29 @@ const ContactsControllers = {
         data,
       });
       return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleSearchContact: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { query } = req.query;
+    const { userId } = req.decoded;
+    try {
+      const data = await processSearchContact({
+        query: query as string,
+        userId,
+      });
+      res.status(200).json({
+        success: true,
+        message: 'Search Contacts Found',
+        data,
+      });
     } catch (error) {
       const err = error as Error;
       logger.error(err.message);

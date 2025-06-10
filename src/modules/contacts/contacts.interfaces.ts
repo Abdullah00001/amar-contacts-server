@@ -101,4 +101,9 @@ export interface IFindContactsPayload {
   userId: Types.ObjectId;
 }
 
+export interface ISearchContact{
+  query:string;
+  userId: Types.ObjectId;
+}
+
 export default IContacts;
