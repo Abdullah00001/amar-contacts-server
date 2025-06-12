@@ -3,5 +3,8 @@
     "source.fixAll": "explicit",
     "source.fixAll.eslint": "explicit"
   },
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.importModuleSpecifierEnding": "auto",
+  "javascript.preferences.importModuleSpecifier": "non-relative",
   "eslint.validate": ["typescript"]
 }
