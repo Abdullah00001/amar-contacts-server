@@ -103,6 +103,18 @@ const ProfileRepositories = {
       }
     }
   },
+  changePassword: async ({ user, password }: IProfilePayload) => {
+    try {
+      await User.findOneAndUpdate({ _id: user }, { $set: { password } });
+      return;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Change Password Query');
+      }
+    }
+  },
 };
 
 export default ProfileRepositories;

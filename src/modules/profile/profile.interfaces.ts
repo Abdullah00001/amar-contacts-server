@@ -19,9 +19,10 @@ export interface IProfilePayload {
   dateOfBirth?: string;
   user?: Types.ObjectId;
   profileId?: Types.ObjectId;
-  name?:string;
-  phone?:string;
-  avatar?:string
+  name?: string;
+  phone?: string;
+  avatar?: string;
+  password?: string;
 }
 
 export default IProfile;

@@ -3,10 +3,11 @@ import redisClient from '@/configs/redis.configs';
 import UserRepositories from '@/modules/user/user.repositories';
 import { NextFunction, Request, Response } from 'express';
 import IUser from '@/modules/user/user.interfaces';
-import { comparePassword } from '@/utils/password.utils';
+import PasswordUtils from '@/utils/password.utils';
 import { TokenPayload } from '@/interfaces/jwtPayload.interfaces';
 import JwtUtils from '@/utils/jwt.utils';
 
+const { comparePassword } = PasswordUtils;
 const { findUserByEmail } = UserRepositories;
 const { verifyAccessToken, verifyRefreshToken, verifyRecoverToken } = JwtUtils;
 

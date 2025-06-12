@@ -3,9 +3,11 @@ import { serverCacheExpiredIn } from '@/const';
 import { IProfilePayload } from '@/modules/profile/profile.interfaces';
 import ProfileRepositories from '@/modules/profile/profile.repositories';
 import CalculationUtils from '@/utils/calculation.utils';
+import PasswordUtils from '@/utils/password.utils';
 
-const { getProfile, updateProfile } = ProfileRepositories;
+const { getProfile, updateProfile, changePassword } = ProfileRepositories;
 const { expiresInTimeUnitToMs } = CalculationUtils;
+const { hashPassword } = PasswordUtils;
 
 const ProfileServices = {
   processUpdateProfile: async (payload: IProfilePayload) => {
@@ -41,6 +43,19 @@ const ProfileServices = {
         throw error;
       } else {
         throw new Error('Unknown Error Occurred In Get Profile Service');
+      }
+    }
+  },
+  processChangePassword: async ({ user, password }: IProfilePayload) => {
+    try {
+      const hash = (await hashPassword(password as string)) as string;
+      await changePassword({ user, password: hash });
+      return
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Change Password Service');
       }
     }
   },
