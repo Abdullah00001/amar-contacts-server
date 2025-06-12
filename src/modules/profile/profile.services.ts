@@ -5,7 +5,8 @@ import ProfileRepositories from '@/modules/profile/profile.repositories';
 import CalculationUtils from '@/utils/calculation.utils';
 import PasswordUtils from '@/utils/password.utils';
 
-const { getProfile, updateProfile, changePassword } = ProfileRepositories;
+const { getProfile, updateProfile, changePassword, deleteAccount } =
+  ProfileRepositories;
 const { expiresInTimeUnitToMs } = CalculationUtils;
 const { hashPassword } = PasswordUtils;
 
@@ -50,12 +51,29 @@ const ProfileServices = {
     try {
       const hash = (await hashPassword(password as string)) as string;
       await changePassword({ user, password: hash });
-      return
+      return;
     } catch (error) {
       if (error instanceof Error) {
         throw error;
       } else {
         throw new Error('Unknown Error Occurred In Change Password Service');
+      }
+    }
+  },
+  processDeleteAccount: async (payload: IProfilePayload) => {
+    try {
+      await deleteAccount(payload);
+      await Promise.all([
+        redisClient.del(`me:${payload.user}`),
+        redisClient.del(`contacts:${payload.user}`),
+        redisClient.del(`favorites:${payload.user}`),
+        redisClient.del(`trash:${payload.user}`),
+      ]);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Delete Account Services');
       }
     }
   },

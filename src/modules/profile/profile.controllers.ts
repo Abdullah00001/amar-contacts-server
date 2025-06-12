@@ -3,8 +3,12 @@ import { IProfilePayload } from '@/modules/profile/profile.interfaces';
 import ProfileServices from '@/modules/profile/profile.services';
 import { NextFunction, Request, Response } from 'express';
 
-const { processGetProfile, processUpdateProfile, processChangePassword } =
-  ProfileServices;
+const {
+  processGetProfile,
+  processUpdateProfile,
+  processChangePassword,
+  processDeleteAccount,
+} = ProfileServices;
 
 const ProfileControllers = {
   handleUpdateProfile: async (
@@ -54,6 +58,24 @@ const ProfileControllers = {
       res
         .status(200)
         .json({ status: 'success', message: 'password change successful' });
+      return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleDeleteAccount: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { userId } = req.decoded;
+    try {
+      await processDeleteAccount({ user: userId });
+      res
+        .status(200)
+        .json({ status: 'success', message: 'account delete successful' });
       return;
     } catch (error) {
       const err = error as Error;

@@ -1,10 +1,11 @@
+import Contacts from '@/modules/contacts/contacts.models';
 import IProfile, {
   IProfilePayload,
 } from '@/modules/profile/profile.interfaces';
 import Profile from '@/modules/profile/profile.models';
 import IUser from '@/modules/user/user.interfaces';
 import User from '@/modules/user/user.models';
-import mongoose from 'mongoose';
+import mongoose, { startSession } from 'mongoose';
 
 const ProfileRepositories = {
   updateProfile: async ({
@@ -112,6 +113,25 @@ const ProfileRepositories = {
         throw error;
       } else {
         throw new Error('Unknown Error Occurred In Change Password Query');
+      }
+    }
+  },
+  deleteAccount: async ({ user }: IProfilePayload) => {
+    const session = await startSession();
+    session.startTransaction();
+    try {
+      await User.findByIdAndDelete(user, { session });
+      await Profile.findOneAndDelete({ user }, { session });
+      await Contacts.deleteMany({ userId: user }, { session });
+      await session.commitTransaction();
+      session.endSession();
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Delete Account Query');
       }
     }
   },
