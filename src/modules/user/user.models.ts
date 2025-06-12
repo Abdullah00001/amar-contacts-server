@@ -1,6 +1,8 @@
 import { model, Model, Schema } from 'mongoose';
 import IUser from '@/modules/user/user.interfaces';
-import { hashPassword } from '@/utils/password.utils';
+import PasswordUtils from '@/utils/password.utils';
+
+const { hashPassword } = PasswordUtils;
 
 const UserSchema = new Schema<IUser>(
   {

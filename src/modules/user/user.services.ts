@@ -19,8 +19,9 @@ import JwtUtils from '@/utils/jwt.utils';
 import { Types } from 'mongoose';
 import { IRefreshTokenPayload } from '@/interfaces/jwtPayload.interfaces';
 import CalculationUtils from '@/utils/calculation.utils';
-import { hashPassword } from '@/utils/password.utils';
+import PasswordUtils from '@/utils/password.utils';
 
+const { hashPassword } = PasswordUtils;
 const {
   sendAccountVerificationOtpEmail,
   sendAccountRecoverOtpEmail,

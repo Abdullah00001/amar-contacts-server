@@ -10,10 +10,8 @@ import {
   recoverSessionExpiresIn,
   refreshTokenExpiresIn,
 } from '@/const';
-import CalculationUtils from '@/utils/calculation.utils';
 
 const { getRealIP } = UserMiddlewares;
-const { stringToNumber } = CalculationUtils;
 
 const {
   processSignup,
@@ -314,8 +312,8 @@ const UserControllers = {
       const { password } = req.body;
       const { email, name, userId, isVerified } = req.decoded;
       const r_stp3 = req.cookies?.r_stp3;
-      const ipAddress = getRealIP(req) as string;
-      const locationInfo = await getLocationFromIP(ipAddress);
+      const ipAddress = getRealIP(req) as string[];
+      const locationInfo = await getLocationFromIP(ipAddress[0]);
       const device = `${req?.useragent?.browser} ${req?.useragent?.version} on ${req?.useragent?.os}`;
       const { accessToken, refreshToken } = await processResetPassword({
         email,
@@ -324,7 +322,7 @@ const UserControllers = {
         isVerified,
         r_stp3,
         device,
-        ipAddress,
+        ipAddress: ipAddress[0],
         location: locationInfo
           ? `${locationInfo.city}, ${locationInfo.regionName}, ${locationInfo.country}`
           : 'Unknown',

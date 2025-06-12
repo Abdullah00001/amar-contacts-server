@@ -184,7 +184,7 @@ const ContactsServices = {
       await bulkChangeTrashStatus({ contactIds });
       await Promise.all([
         redisClient.del(`contacts:${userId}`),
-        ...contactIds!?.map((contactId) =>
+        ...contactIds!.map((contactId) =>
           redisClient.del(`contacts:${userId}:${contactId}`)
         ),
         redisClient.del(`trash:${userId}`),
