@@ -33,28 +33,48 @@ describe('${testType} - ${fileName}', () => {
 });
 `;
 
-  // Define test file names for controllers, repositories, services, and middleware
-  const testFiles = [
+  // Define unit test file names for controllers, repositories, services, and middleware
+  const unittestFiles = [
     {
       type: 'controller',
-      fileName: `${moduleName.toLowerCase()}.controllers.test.ts`,
+      fileName: `${moduleName.toLowerCase()}.controllers.unit.test.ts`,
     },
     {
       type: 'repository',
-      fileName: `${moduleName.toLowerCase()}.repositories.test.ts`,
+      fileName: `${moduleName.toLowerCase()}.repositories.unit.test.ts`,
     },
     {
       type: 'service',
-      fileName: `${moduleName.toLowerCase()}.services.test.ts`,
+      fileName: `${moduleName.toLowerCase()}.services.unit.test.ts`,
     },
     {
       type: 'middleware',
-      fileName: `${moduleName.toLowerCase()}.middleware.test.ts`,
+      fileName: `${moduleName.toLowerCase()}.middleware.unit.test.ts`,
+    },
+  ];
+
+  // Define integration test file names for controllers, repositories, services, and middleware
+  const integrationTestFiles = [
+    {
+      type: 'controller',
+      fileName: `${moduleName.toLowerCase()}.controllers.integration.test.ts`,
+    },
+    {
+      type: 'repository',
+      fileName: `${moduleName.toLowerCase()}.repositories.integration.test.ts`,
+    },
+    {
+      type: 'service',
+      fileName: `${moduleName.toLowerCase()}.services.integration.test.ts`,
+    },
+    {
+      type: 'middleware',
+      fileName: `${moduleName.toLowerCase()}.middleware.integration.test.ts`,
     },
   ];
 
   // Create unit test files
-  testFiles.forEach(({ type, fileName }) => {
+  unittestFiles.forEach(({ type, fileName }) => {
     const filePath = path.join(unitDir, fileName);
     if (!fs.existsSync(filePath)) {
       fs.writeFileSync(filePath, testContentTemplate('Unit Test', fileName));
@@ -65,7 +85,7 @@ describe('${testType} - ${fileName}', () => {
   });
 
   // Create integration test files
-  testFiles.forEach(({ type, fileName }) => {
+  integrationTestFiles.forEach(({ type, fileName }) => {
     const filePath = path.join(integrationDir, fileName);
     if (!fs.existsSync(filePath)) {
       fs.writeFileSync(
@@ -89,6 +109,7 @@ if (!moduleName) {
   console.error(`❌ Please provide a module name (e.g., user)`);
   process.exit(1);
 }
+
 
 // Call the function to create test files
 createTestFiles(moduleName);
