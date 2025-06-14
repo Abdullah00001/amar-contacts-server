@@ -2,7 +2,7 @@ import logger from '@/configs/logger.configs';
 import { accessTokenExpiresIn, refreshTokenExpiresIn } from '@/const';
 import { IProfilePayload } from '@/modules/profile/profile.interfaces';
 import ProfileServices from '@/modules/profile/profile.services';
-import cookieOption from '@/utils/cookie.utils';
+import CookieUtils from '@/utils/cookie.utils';
 import { NextFunction, Request, Response } from 'express';
 
 const {
@@ -11,6 +11,8 @@ const {
   processChangePassword,
   processDeleteAccount,
 } = ProfileServices;
+
+const { cookieOption } = CookieUtils;
 
 const ProfileControllers = {
   handleUpdateProfile: async (
