@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import logger from '@/configs/logger.configs';
 import UserServices from '@/modules/user/user.services';
 import IUser from '@/modules/user/user.interfaces';
-import cookieOption, { sharedCookieOption } from '@/utils/cookie.utils';
+import CookieUtils from '@/utils/cookie.utils';
 import UserMiddlewares from '@/modules/user/user.middlewares';
 import {
   accessTokenExpiresIn,
@@ -11,6 +11,7 @@ import {
   refreshTokenExpiresIn,
 } from '@/const';
 
+const { cookieOption } = CookieUtils;
 const { getRealIP } = UserMiddlewares;
 
 const {
