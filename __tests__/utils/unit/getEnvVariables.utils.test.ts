@@ -5,4 +5,9 @@ describe('getEnvVariable', () => {
     const value = getEnvVariable('NODE_ENV');
     expect(value).toBe('test');
   });
+  it('it should be throw error if the key with value not found in .env', () => {
+    expect(() => getEnvVariable('NOT_FOUND')).toThrow(
+      `Missing Environment Variable: ${'NOT_FOUND'}`
+    );
+  });
 });
