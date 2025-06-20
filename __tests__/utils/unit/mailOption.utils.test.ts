@@ -1,5 +1,4 @@
 import mailOption from '../../../src/utils/mailOption.utils';
-import { IMailOption } from '../../../src/interfaces/mailOption.interfaces';
 
 describe('Mail Option Utility', () => {
   it('it should be return an object', () => {
