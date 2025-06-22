@@ -26,9 +26,6 @@ Thumbs.db
 
 # Test directories and coverage reports
 coverage
-*.test.ts
-*.spec.ts
-__tests__
 logs
 coverage
 .env
