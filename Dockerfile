@@ -23,6 +23,8 @@
     
     # Copy built code from builder
     COPY --from=builder /usr/src/app/dist ./dist
+    COPY --from=builder /usr/src/app/swagger.yaml ./swagger.yaml
+    COPY --from=builder /usr/src/app/public ./public
     
     # Copy any necessary runtime assets (optional)
     # COPY --from=builder /usr/src/app/public ./public
