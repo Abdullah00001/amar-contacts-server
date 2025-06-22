@@ -8,80 +8,51 @@ import {
 } from '@/const';
 
 const JwtUtils = {
-  generateAccessToken: (payload: TokenPayload): string | null => {
-    try {
-      const token = jwt.sign(
-        payload,
-        env.JWT_ACCESS_TOKEN_SECRET_KEY as string,
-        {
-          expiresIn: accessTokenExpiresIn,
-        }
-      );
-      return token;
-    } catch (error) {
-      console.error(error);
-      return null;
+  generateAccessToken: (payload: TokenPayload | null): string => {
+    if (!payload) {
+      throw new Error('Generate AccessToken Payload Cant Be Null');
     }
+    return jwt.sign(payload, env.JWT_ACCESS_TOKEN_SECRET_KEY as string, {
+      expiresIn: accessTokenExpiresIn,
+    });
   },
-  generateRefreshToken: (payload: TokenPayload): string | null => {
-    try {
-      const token = jwt.sign(payload, env.JWT_REFRESH_TOKEN_SECRET_KEY, {
-        expiresIn: refreshTokenExpiresIn,
-      });
-      return token;
-    } catch (error) {
-      console.error(error);
-      return null;
+  generateRefreshToken: (payload: TokenPayload): string => {
+    if (!payload) {
+      throw new Error('Generate RefreshToken Payload Cant Be Null');
     }
+    return jwt.sign(payload, env.JWT_REFRESH_TOKEN_SECRET_KEY, {
+      expiresIn: refreshTokenExpiresIn,
+    });
   },
-  verifyAccessToken: (token: string): JwtPayload | null => {
-    try {
-      const decoded = jwt.verify(
-        token,
-        env.JWT_ACCESS_TOKEN_SECRET_KEY
-      ) as JwtPayload;
-      return decoded;
-    } catch (error) {
-      console.error(error);
-      return null;
+  generateRecoverToken: (payload: TokenPayload | null): string => {
+    if (!payload) {
+      throw new Error('Generate RecoverToken Payload Cant Be Null');
     }
+    return jwt.sign(payload, env.JWT_RECOVER_SESSION_TOKEN_SECRET_KEY, {
+      expiresIn: recoverSessionExpiresIn,
+    });
   },
-  verifyRefreshToken: (token: string): JwtPayload | null => {
-    try {
-      const decoded = jwt.verify(
-        token,
-        env.JWT_REFRESH_TOKEN_SECRET_KEY
-      ) as JwtPayload;
-      return decoded;
-    } catch (error) {
-      console.error(error);
-      return null;
+  verifyAccessToken: (token: string | null): JwtPayload => {
+    if (!token) {
+      throw new Error('Access Token Is Missing');
     }
+    return jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET_KEY) as JwtPayload;
   },
-  generateRecoverToken: (payload: TokenPayload): string | null => {
-    try {
-      const token = jwt.sign(
-        payload,
-        env.JWT_RECOVER_SESSION_TOKEN_SECRET_KEY,
-        { expiresIn: recoverSessionExpiresIn }
-      );
-      return token;
-    } catch (error) {
-      console.error(error);
-      return null;
+  verifyRefreshToken: (token: string): JwtPayload => {
+    if (!token) {
+      throw new Error('Refresh Token Is Missing');
     }
+    return jwt.verify(token, env.JWT_REFRESH_TOKEN_SECRET_KEY) as JwtPayload;
   },
+
   verifyRecoverToken: (token: string): JwtPayload | null => {
-    try {
-      const decoded = jwt.verify(
-        token,
-        env.JWT_RECOVER_SESSION_TOKEN_SECRET_KEY
-      ) as JwtPayload;
-      return decoded;
-    } catch (error) {
-      console.error(error);
-      return null;
+    if (!token) {
+      throw new Error('Recover Token Is Missing');
     }
+    return jwt.verify(
+      token,
+      env.JWT_RECOVER_SESSION_TOKEN_SECRET_KEY
+    ) as JwtPayload;
   },
 };
 
