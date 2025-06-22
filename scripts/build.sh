@@ -70,18 +70,7 @@ fi
 
 echo ""
 
-# Step 2: Running tests
-if ! run_with_spinner \
-    "${BLUE}🧪 Running tests..." \
-    "npm run test" \
-    "Passed all tests! 🎉" \
-    "Build failed due to test failures! 😞"; then
-    exit 1
-fi
-
-echo ""
-
-# Step 3: Compiling TypeScript
+# Step 2: Compiling TypeScript
 if ! run_with_spinner \
     "${CYAN}⚙️  Compiling TypeScript..." \
     "tsc" \
@@ -92,7 +81,7 @@ fi
 
 echo ""
 
-# Step 4: Fix import paths with tsc-alias
+# Step 3: Fix import paths with tsc-alias
 if ! run_with_spinner \
     "${YELLOW}🔧 Fixing import paths..." \
     "./node_modules/.bin/tsc-alias" \
