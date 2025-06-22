@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [v1.3.2] - 2025-06-22
+
+### 🛠️ CI/CD & Deployment
+
+- 🔧 **Fixed production deployment issue** by updating the CI/CD pipeline configuration.
+- ♻️ Improved deployment reliability and automation.
+
+> This patch focuses solely on resolving production deployment blockers and improving continuous delivery flow.
+
 ## [v1.3.1] - 2025-06-22
 
 ### 🐛 Bug Fixes
