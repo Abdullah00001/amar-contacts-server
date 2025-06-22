@@ -40,5 +40,18 @@ jobs:
           tags: |
             abdullah00001/amar-contacts:${{github.ref_name}}
             abdullah00001/amar-contacts:latest
+          build-args: |
+            MONGODB_URI=${{ secrets.MONGODB_URI }}
+            CLOUDINARY_NAME=${{ secrets.CLOUDINARY_NAME }}
+            CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}
+            CLOUDINARY_API_SECRET_KEY=${{ secrets.CLOUDINARY_API_SECRET_KEY }}
+            REDIS_URI=${{ secrets.REDIS_URI }}
+            JWT_ACCESS_TOKEN_SECRET_KEY=${{ secrets.JWT_ACCESS_TOKEN_SECRET_KEY }}
+            JWT_REFRESH_TOKEN_SECRET_KEY=${{ secrets.JWT_REFRESH_TOKEN_SECRET_KEY }}
+            JWT_RECOVER_SESSION_TOKEN_SECRET_KEY=${{ secrets.JWT_RECOVER_SESSION_TOKEN_SECRET_KEY }}
+            SMTP_HOST=${{ secrets.SMTP_HOST }}
+            SMTP_PORT=${{ secrets.SMTP_PORT }}
+            SMTP_USER=${{ secrets.SMTP_USER }}
+            SMTP_PASS=${{ secrets.SMTP_PASS }}
       - name: Deploy to Render
         run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
