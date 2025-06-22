@@ -4,9 +4,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [v1.3.1] - 2025-06-22
+
+### 🐛 Bug Fixes
+
+- ✅ Fixed Jest test failure in CI/CD pipeline by ensuring `__tests__/jest.setup.ts` is included in the Docker build context.
+- ✅ Removed `__tests__` from `.dockerignore` to allow test setup files to be available during Docker builds.
+
+### 🔧 Maintenance
+
+- 🛠 Improved Docker build reliability for testing environment consistency.
+
+---
+
+> ✅ CI/CD pipeline is now stable and passes all test steps during Dockerized builds.
+
 ## [v1.3.0] - 2025-06-22
 
 ### 🚀 Features
+
 - **Swagger Documentation**: Added OpenAPI (Swagger) documentation for the entire API.
 - **Feedback Module**: Implemented feedback endpoint. [#19]
 - **Profile Management Enhancements**:
@@ -23,6 +39,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
     - Get favorites and trashed contacts
 
 ### 🧪 Tests
+
 - Added unit tests for:
   - `UserRepository` and its `findUserByEmail` method
   - `PasswordUtils`
@@ -33,10 +50,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Setup the test environment and enhanced build script to run tests.
 
 ### 🛠️ Refactor
+
 - Refactored `CookieUtils` to wrap methods inside an object.
 - Refactored utility logic to increase testability and reliability.
 
 ### 🧹 Chores & Docs
+
 - Updated `README.md`, `SECURITY.md`, and `LICENSE` files.
 - Enhanced internal documentation.
 - Improved build Bash script with better UI and automation.
