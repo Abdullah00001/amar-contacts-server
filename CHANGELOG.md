@@ -4,6 +4,44 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [v1.3.0] - 2025-06-22
+
+### 🚀 Features
+- **Swagger Documentation**: Added OpenAPI (Swagger) documentation for the entire API.
+- **Feedback Module**: Implemented feedback endpoint. [#19]
+- **Profile Management Enhancements**:
+  - Added delete account endpoint.
+  - Added change password endpoint and refactored `PasswordUtils`.
+  - Added get and update profile endpoints.
+- **Contact Management Improvements**:
+  - Added search endpoint. [#17]
+  - Added CRUD support for contacts including:
+    - Create, get one, update one
+    - Trash (soft delete), bulk add to trash
+    - Delete contact (hard delete)
+    - Favorite/unfavorite toggle
+    - Get favorites and trashed contacts
+
+### 🧪 Tests
+- Added unit tests for:
+  - `UserRepository` and its `findUserByEmail` method
+  - `PasswordUtils`
+  - `MailOptions` utility
+  - `getEnvVariables` utility (including error case)
+  - `CookieUtils` and `CalculationUtils` with edge cases
+- Refactored utility tests and removed incomplete module tests due to lack of domain knowledge.
+- Setup the test environment and enhanced build script to run tests.
+
+### 🛠️ Refactor
+- Refactored `CookieUtils` to wrap methods inside an object.
+- Refactored utility logic to increase testability and reliability.
+
+### 🧹 Chores & Docs
+- Updated `README.md`, `SECURITY.md`, and `LICENSE` files.
+- Enhanced internal documentation.
+- Improved build Bash script with better UI and automation.
+- Bumped version and prepared for release.
+
 ## [v1.2.0] - 2025-05-27
 
 ### ✨ Added
