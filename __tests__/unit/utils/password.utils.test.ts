@@ -1,5 +1,5 @@
 import PasswordUtils from '../../../src/utils/password.utils';
-import logger from "../../../src/configs/logger.configs"
+import logger from '../../../src/configs/logger.configs';
 import bcrypt from 'bcrypt';
 
 const { comparePassword, hashPassword } = PasswordUtils;
