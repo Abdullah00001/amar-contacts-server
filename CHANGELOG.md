@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+
+## [v1.4.0] - 2025-06-25
+
+### Added
+- Image module and route setup.
+- `POST /image` endpoint for uploading images.
+- `DELETE /image/:public_id` endpoint for deleting images from Cloudinary.
+
+### Notes
+- Image uploads are processed using Multer.
+- Uploaded images are stored on Cloudinary.
+- Local files are cleaned up after successful uploads.
+
 ## [v1.3.2] - 2025-06-22
 
 ### 🛠️ CI/CD & Deployment
