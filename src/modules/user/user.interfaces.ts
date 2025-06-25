@@ -1,3 +1,4 @@
+import { IImage } from '@/modules/contacts/contacts.interfaces';
 import { Document, Types } from 'mongoose';
 
 interface IUser extends Document {
@@ -6,7 +7,7 @@ interface IUser extends Document {
   phone: string;
   password: string;
   isVerified: boolean;
-  avatar: string;
+  avatar: IImage;
 }
 
 export interface IUserPayload {
@@ -14,7 +15,7 @@ export interface IUserPayload {
   email?: string;
   password?: string;
   isVerified?: boolean;
-  avatar?: string;
+  avatar?: IImage;
   userId?: Types.ObjectId;
   phone?: string;
   otp?: string;
@@ -33,7 +34,7 @@ export interface IProcessRecoverAccountPayload {
   email: string;
   isVerified?: boolean;
   name: string;
-  avatar?: string;
+  avatar?: IImage;
   r_stp1?: string;
   r_stp2?: string;
   r_stp3?: string;

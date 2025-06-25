@@ -1,3 +1,4 @@
+import { IImage } from '@/modules/contacts/contacts.interfaces';
 import { Document, Types } from 'mongoose';
 
 export interface IWorksAt {
@@ -21,7 +22,7 @@ export interface IProfilePayload {
   profileId?: Types.ObjectId;
   name?: string;
   phone?: string;
-  avatar?: string;
+  avatar?: IImage;
   password?: string;
 }
 

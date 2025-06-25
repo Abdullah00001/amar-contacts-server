@@ -19,11 +19,16 @@ export interface IBirthDate {
   year: number;
 }
 
+export interface IImage {
+  url: string;
+  publicId: string;
+}
+
 interface IContacts {
   _id?: Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
-  avatar: string;
+  avatar: IImage;
   firstName: string;
   lastName: string;
   email: string;
@@ -70,7 +75,7 @@ export interface IFindOneContactPayload {
 }
 
 export interface IUpdateOneContactPayload {
-  avatar?: string;
+  avatar?: IImage;
   firstName?: string;
   lastName?: string;
   email?: string;
@@ -83,7 +88,7 @@ export interface IUpdateOneContactPayload {
 }
 
 export interface ICreateContactPayload {
-  avatar?: string;
+  avatar?: IImage;
   firstName?: string;
   lastName?: string;
   email?: string;

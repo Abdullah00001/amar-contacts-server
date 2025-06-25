@@ -1,5 +1,6 @@
 import IContacts, {
   IBirthDate,
+  IImage,
   ILocation,
   IWorksAt,
 } from '@/modules/contacts/contacts.interfaces';
@@ -10,6 +11,14 @@ const BirthDaySchema = new Schema<IBirthDate>(
     day: { type: Number, default: null },
     month: { type: String, default: null },
     year: { type: Number, default: null },
+  },
+  { _id: false }
+);
+
+export const AvatarSchema = new Schema<IImage>(
+  {
+    url: { type: String, default: null },
+    publicId: { type: String, default: null },
   },
   { _id: false }
 );
@@ -34,7 +43,7 @@ const LocationSchema = new Schema<ILocation>(
 
 const ContactsSchema = new Schema<IContacts>(
   {
-    avatar: { type: String, default: null },
+    avatar: AvatarSchema,
     birthday: BirthDaySchema,
     email: { type: String, default: null, index: true },
     firstName: { type: String, default: null, index: true },

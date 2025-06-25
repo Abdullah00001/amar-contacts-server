@@ -1,6 +1,7 @@
 import { model, Model, Schema } from 'mongoose';
 import IUser from '@/modules/user/user.interfaces';
 import PasswordUtils from '@/utils/password.utils';
+import { AvatarSchema } from '@/modules/contacts/contacts.models';
 
 const { hashPassword } = PasswordUtils;
 
@@ -9,7 +10,7 @@ const UserSchema = new Schema<IUser>(
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, unique: true },
-    avatar: { type: String, default: null },
+    avatar: AvatarSchema,
     isVerified: { type: Boolean, default: false },
     phone: { type: String, default: null },
   },
