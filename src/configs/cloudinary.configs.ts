@@ -22,8 +22,12 @@ const CloudinaryConfigs = {
         resource_type: 'auto',
       });
       fs.unlinkSync(imagePath);
-      return cloudinaryResponse.url;
+      return {
+        url: cloudinaryResponse.url,
+        publicId: cloudinaryResponse.public_id,
+      };
     } catch (error) {
+      fs.unlinkSync(imagePath);
       if (error instanceof Error) {
         console.error(`Image Upload Failed\nMessage: ${error.message}`);
       } else {
