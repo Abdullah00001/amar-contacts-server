@@ -1,9 +1,11 @@
-import { promises as fs } from 'fs';
 import { join } from 'path';
 import CloudinaryConfigs from '@/configs/cloudinary.configs';
-import { IProcessImageUpload } from '@/modules/image/image.interfaces';
+import {
+  IProcessImageDelete,
+  IProcessImageUpload,
+} from '@/modules/image/image.interfaces';
 
-const { upload } = CloudinaryConfigs;
+const { upload, destroy } = CloudinaryConfigs;
 
 const ImageServices = {
   processImageUpload: async ({ image }: IProcessImageUpload) => {
@@ -16,9 +18,14 @@ const ImageServices = {
       throw new Error('Unknown error occurred in process upload image');
     }
   },
-  processImageDelete:async()=>{
-    
-  }
+  processImageDelete: async ({ publicId }: IProcessImageDelete) => {
+    try {
+      await destroy(publicId);
+    } catch (error) {
+      if (error instanceof Error) throw error;
+      throw new Error('Unknown error occurred in process delete image');
+    }
+  },
 };
 
 export default ImageServices;

@@ -11,6 +11,8 @@ const router = Router();
 router
   .route('/image')
   .post(checkAccessToken, upload.single('image'), handleImageUpload);
-router.route('/image/:public_id').delete(checkAccessToken, handleImageDelete);
+router
+  .route('/image/:folder/:public_id')
+  .delete(checkAccessToken, handleImageDelete);
 
 export default router;

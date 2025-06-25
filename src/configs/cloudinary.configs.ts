@@ -20,6 +20,7 @@ const CloudinaryConfigs = {
       }
       const cloudinaryResponse = await cloudinary.uploader.upload(imagePath, {
         resource_type: 'auto',
+        folder: 'amarcontacts',
       });
       fs.unlinkSync(imagePath);
       return {
@@ -37,6 +38,16 @@ const CloudinaryConfigs = {
       }
       fs.unlinkSync(imagePath);
       return null;
+    }
+  },
+  destroy: async (publicId: string) => {
+    try {
+      await cloudinary.uploader.destroy(publicId);
+    } catch (error) {
+      if (error instanceof Error) throw error;
+      throw new Error(
+        'Unknown error occurred in cloudinary image destroy operation'
+      );
     }
   },
 };
