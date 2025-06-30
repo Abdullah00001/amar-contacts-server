@@ -9,12 +9,17 @@ import IContacts, {
   IDeleteSingleContactPayload,
   IFindContactsPayload,
   IFindOneContactPayload,
+  IImage,
   ISearchContact,
   IUpdateOneContactPayload,
+  TImage,
 } from '@/modules/contacts/contacts.interfaces';
 import ContactsRepositories from '@/modules/contacts/contacts.repositories';
 import CalculationUtils from '@/utils/calculation.utils';
+import { join } from 'path';
+import CloudinaryConfigs from '@/configs/cloudinary.configs';
 
+const { upload, destroy } = CloudinaryConfigs;
 const {
   findContacts,
   findFavorites,
@@ -90,7 +95,7 @@ const ContactsServices = {
       }
     }
   },
-  processUpdateOneContact: async ({
+  processPatchUpdateOneContact: async ({
     contactId,
     avatar,
     birthday,
@@ -103,9 +108,64 @@ const ContactsServices = {
     userId,
   }: IUpdateOneContactPayload) => {
     try {
+      const updatedAvatar = avatar as TImage;
+      if (avatar?.url === null && avatar?.publicId) {
+        await destroy(avatar?.publicId);
+        updatedAvatar.publicId = null;
+      }
       const data = await updateOneContact({
         contactId,
-        avatar,
+        avatar: updatedAvatar,
+        birthday,
+        email,
+        firstName,
+        lastName,
+        location,
+        phone,
+        worksAt,
+      });
+      await Promise.all([
+        redisClient.del(`contacts:${userId}`),
+        redisClient.del(`contacts:${userId}:${contactId}`),
+      ]);
+      return data;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error(
+          'Unknown Error Occurred In Process Update One Contacts'
+        );
+      }
+    }
+  },
+  processPutUpdateOneContact: async ({
+    contactId,
+    avatar,
+    avatarUpload,
+    birthday,
+    email,
+    firstName,
+    lastName,
+    location,
+    phone,
+    worksAt,
+    userId,
+  }: IUpdateOneContactPayload) => {
+    const filePath = join(
+      __dirname,
+      '../../../public/temp',
+      avatarUpload as string
+    );
+    try {
+      if (avatar?.publicId) {
+        await destroy(avatar?.publicId);
+      }
+      const uploadedImage = await upload(filePath);
+      if (!uploadedImage) throw new Error('Cloudinary Image Upload Failed');
+      const data = await updateOneContact({
+        contactId,
+        avatar: uploadedImage,
         birthday,
         email,
         firstName,

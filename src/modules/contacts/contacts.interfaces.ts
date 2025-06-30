@@ -74,8 +74,14 @@ export interface IFindOneContactPayload {
   userId?: Types.ObjectId;
 }
 
+export type TImage = {
+  url: string | null;
+  publicId: string | null;
+};
+
 export interface IUpdateOneContactPayload {
-  avatar?: IImage;
+  avatarUpload?: string;
+  avatar?: TImage;
   firstName?: string;
   lastName?: string;
   email?: string;
@@ -86,6 +92,10 @@ export interface IUpdateOneContactPayload {
   userId?: Types.ObjectId;
   contactId: Types.ObjectId;
 }
+
+export type TUploadImage = {
+  response: IImage | null;
+};
 
 export interface ICreateContactPayload {
   avatar?: IImage;

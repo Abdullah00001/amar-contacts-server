@@ -16,7 +16,8 @@ const {
   processCreateContacts,
   processChangeFavoriteStatus,
   processFindOneContact,
-  processUpdateOneContact,
+  processPatchUpdateOneContact,
+  processPutUpdateOneContact,
   processChangeTrashStatus,
   processBulkChangeTrashStatus,
   processDeleteManyContact,
@@ -235,7 +236,7 @@ const ContactsControllers = {
       next(error);
     }
   },
-  handleUpdateOneContact: async (
+  handlePatchUpdateOneContact: async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -260,7 +261,7 @@ const ContactsControllers = {
         phone,
         worksAt,
       } = req.body;
-      const data = await processUpdateOneContact({
+      const data = await processPatchUpdateOneContact({
         contactId,
         avatar,
         birthday,
@@ -270,6 +271,56 @@ const ContactsControllers = {
         location,
         phone,
         worksAt,
+        userId,
+      });
+      res.status(200).json({
+        success: true,
+        message: 'contact updated successful',
+        data,
+      });
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handlePutUpdateOneContact: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const avatarImage = req.file?.filename as string;
+    try {
+      const { userId } = req.decoded;
+      const { id } = req.params;
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        res
+          .status(400)
+          .json({ status: 'error', message: 'Invalid Contact ID' });
+        return;
+      }
+      const contactId = new mongoose.Types.ObjectId(id);
+      const {
+        birthday,
+        email,
+        firstName,
+        lastName,
+        location,
+        phone,
+        worksAt,
+        avatar,
+      } = req.body;
+      const data = await processPutUpdateOneContact({
+        avatarUpload: avatarImage,
+        avatar:JSON.parse(avatar),
+        contactId,
+        birthday:JSON.parse(birthday),
+        email,
+        firstName,
+        lastName,
+        location:JSON.parse(location),
+        phone,
+        worksAt:JSON.parse(worksAt),
         userId,
       });
       res.status(200).json({
