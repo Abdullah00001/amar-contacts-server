@@ -186,12 +186,30 @@ const ContactsRepositories = {
     }
   },
   findFavorites: async ({ userId }: IFindContactsPayload) => {
+    const objectUserId = new mongoose.Types.ObjectId(userId);
     try {
-      return await Contacts.find({
-        userId,
-        isTrashed: false,
-        isFavorite: true,
-      });
+      return await Contacts.aggregate([
+        {
+          $match: { userId: objectUserId, isTrashed: false, isFavorite: true },
+        },
+        {
+          $project: {
+            _id: 1,
+            avatar: 1,
+            name: {
+              $concat: [
+                { $ifNull: ['$firstName', ''] },
+                ' ',
+                { $ifNull: ['$lastName', ''] },
+              ],
+            },
+            isTrashed: 1,
+            isFavorite: 1,
+            email: 1,
+            phone: 1,
+          },
+        },
+      ]);
     } catch (error) {
       if (error instanceof Error) {
         throw error;
@@ -201,11 +219,28 @@ const ContactsRepositories = {
     }
   },
   findTrash: async ({ userId }: IFindContactsPayload) => {
+    const objectUserId = new mongoose.Types.ObjectId(userId);
     try {
-      return await Contacts.find({
-        userId,
-        isTrashed: true,
-      });
+      return await Contacts.aggregate([
+        {
+          $match: { userId: objectUserId, isTrashed: true },
+        },
+        {
+          $project: {
+            _id: 1,
+            avatar: 1,
+            name: {
+              $concat: [
+                { $ifNull: ['$firstName', ''] },
+                ' ',
+                { $ifNull: ['$lastName', ''] },
+              ],
+            },
+            isTrashed: 1,
+            trashedAt: 1,
+          },
+        },
+      ]);
     } catch (error) {
       if (error instanceof Error) {
         throw error;
