@@ -4,15 +4,37 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [v1.5.0] - 2025-07-04
+
+### ✨ Added
+
+- Edit contact functionality added, allowing users to update existing contact information.
+
+### ♻️ Changed
+
+- Optimized query logic for fetching **favorite** and **trashed** contacts to improve performance and accuracy.
+
+### 🧹 Fixed
+
+- Fixed image upload issue that previously caused errors when uploading or replacing contact profile images.
+- Introduced a **single trash endpoint** to simplify the API structure for soft-deleting contacts.
+
+---
+
+✅ This release focuses on improving contact management capabilities and making the backend API more consistent and efficient.
+
+🔜 Future updates will continue to enhance error handling and introduce pagination and search improvements.
 
 ## [v1.4.0] - 2025-06-25
 
 ### Added
+
 - Image module and route setup.
 - `POST /image` endpoint for uploading images.
 - `DELETE /image/:public_id` endpoint for deleting images from Cloudinary.
 
 ### Notes
+
 - Image uploads are processed using Multer.
 - Uploaded images are stored on Cloudinary.
 - Local files are cleaned up after successful uploads.
