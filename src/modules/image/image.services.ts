@@ -8,10 +8,11 @@ import {
 const { upload, destroy } = CloudinaryConfigs;
 
 const ImageServices = {
-  processImageUpload: async ({ image }: IProcessImageUpload) => {
+  processImageUpload: async ({ image, publicId }: IProcessImageUpload) => {
     const filePath = join(__dirname, '../../../public/temp', image);
     try {
       const response = await upload(filePath);
+      if (publicId) await destroy(publicId);
       return response;
     } catch (error) {
       if (error instanceof Error) throw error;

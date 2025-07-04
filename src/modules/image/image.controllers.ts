@@ -11,8 +11,9 @@ const ImageControllers = {
     next: NextFunction
   ) => {
     const image = req.file?.filename as string;
+    const { publicId } = req.body;
     try {
-      const response = await processImageUpload({ image });
+      const response = await processImageUpload({ image, publicId });
       res.status(200).json({
         status: 'success',
         message: 'Image upload successful',

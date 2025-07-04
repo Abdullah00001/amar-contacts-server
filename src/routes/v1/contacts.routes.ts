@@ -1,3 +1,4 @@
+import upload from '@/middlewares/multer.middleware';
 import ContactsControllers from '@/modules/contacts/contacts.controllers';
 import UserMiddlewares from '@/modules/user/user.middlewares';
 import { Router } from 'express';
@@ -10,27 +11,41 @@ const {
   handleCreateContact,
   handleChangeFavoriteStatus,
   handleFindOneContacts,
-  handleUpdateOneContact,
+  handlePatchUpdateOneContact,
+  handlePutUpdateOneContact,
   handleChangeTrashStatus,
   handleBulkChangeTrashStatus,
   handleDeleteManyContact,
   handleDeleteOneContact,
   handleSearchContact,
+  handleBulkRecoverTrash,
+  handleRecoverOneTrash,
+  handleEmptyTrash,
 } = ContactsControllers;
 
 const router = Router();
 
 router
+  .route('/contacts/recover')
+  .patch(checkAccessToken, handleBulkRecoverTrash);
+router
+  .route('/contacts/recover/:id')
+  .patch(checkAccessToken, handleRecoverOneTrash);
+router.route('/contacts/empty').delete(checkAccessToken, handleEmptyTrash);
+router
   .route('/contacts')
   .get(checkAccessToken, handleFindContacts)
   .post(checkAccessToken, handleCreateContact);
-
 router.route('/search').get(checkAccessToken, handleSearchContact);
-
 router
   .route('/contacts/:id')
   .get(checkAccessToken, handleFindOneContacts)
-  .put(checkAccessToken, handleUpdateOneContact);
+  .put(
+    checkAccessToken,
+    upload.single('avatarImage'),
+    handlePutUpdateOneContact
+  )
+  .patch(checkAccessToken, handlePatchUpdateOneContact);
 router.route('/favorites').get(checkAccessToken, handleFindFavorites);
 router
   .route('/favorites/:id')
