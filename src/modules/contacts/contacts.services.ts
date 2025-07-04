@@ -9,7 +9,6 @@ import IContacts, {
   IDeleteSingleContactPayload,
   IFindContactsPayload,
   IFindOneContactPayload,
-  IImage,
   ISearchContact,
   IUpdateOneContactPayload,
   TImage,
@@ -33,6 +32,9 @@ const {
   deleteManyContact,
   deleteSingleContact,
   searchContact,
+  bulkRecoverTrash,
+  recoverOneTrash,
+  emptyTrash,
 } = ContactsRepositories;
 const { expiresInTimeUnitToMs } = CalculationUtils;
 
@@ -214,11 +216,10 @@ const ContactsServices = {
   },
   processChangeTrashStatus: async ({
     contactId,
-    isTrashed,
     userId,
   }: IChangeTrashStatusPayload) => {
     try {
-      const data = await changeTrashStatus({ contactId, isTrashed });
+      const data = await changeTrashStatus({ contactId });
       await Promise.all([
         redisClient.del(`contacts:${userId}`),
         redisClient.del(`contacts:${userId}:${contactId}`),
@@ -267,6 +268,7 @@ const ContactsServices = {
     try {
       const isDeleted = await deleteSingleContact({ contactId });
       if (!isDeleted) return null;
+      await destroy(isDeleted.avatar.publicId);
       await redisClient.del(`trash:${userId}`);
       return isDeleted;
     } catch (error) {
@@ -284,18 +286,43 @@ const ContactsServices = {
     userId,
   }: IDeleteManyContactPayload) => {
     try {
-      const isDeleted = await deleteManyContact({ contactIds });
-      if (!isDeleted.deletedCount) return null;
-      await redisClient.del(`trash:${userId}`);
-      return isDeleted;
+      const { deletedContactCount, deletedContacts } = await deleteManyContact({
+        contactIds,
+      });
+      if (!deletedContactCount && deletedContacts.length === 0) return null;
+      const publicIds = deletedContacts
+        .map((item) => item.avatar?.publicId)
+        .filter(Boolean);
+      await Promise.all([
+        redisClient.del(`trash:${userId}`),
+        ...publicIds.map(async (item) => await destroy(item)),
+      ]);
+      return { deletedContactCount, deletedContacts };
     } catch (error) {
       if (error instanceof Error) {
         throw error;
       } else {
         throw new Error(
-          'Unknown Error Occurred In Process Delete Single Contacts'
+          'Unknown Error Occurred In Process Delete Many Contacts'
         );
       }
+    }
+  },
+  processEmptyTrash: async ({ userId }: IDeleteManyContactPayload) => {
+    try {
+      const { contacts, deletedCount } = await emptyTrash({ userId });
+      if (!deletedCount && contacts.length === 0)
+        throw new Error('Empty Trash Operation Failed');
+      const publicIds = contacts
+        .map((item) => item.avatar?.publicId)
+        .filter(Boolean);
+      await Promise.all([
+        redisClient.del(`trash:${userId}`),
+        ...publicIds.map(async (item) => await destroy(item)),
+      ]);
+    } catch (error) {
+      if (error instanceof Error) throw error;
+      throw new Error('Unknown Error Occurred In Empty Trash Service');
     }
   },
   processFindContacts: async ({ userId }: IFindContactsPayload) => {
@@ -386,6 +413,42 @@ const ContactsServices = {
         throw error;
       } else {
         throw new Error('Unknown Error Occurred In Process Search Contact');
+      }
+    }
+  },
+  processBulkRecoverTrash: async ({
+    contactIds,
+    userId,
+  }: IBulkChangeTrashStatusPayload) => {
+    try {
+      await bulkRecoverTrash({ contactIds });
+      await Promise.all([
+        redisClient.del(`contacts:${userId}`),
+        redisClient.del(`trash:${userId}`),
+      ]);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Process Bulk Recover Trash');
+      }
+    }
+  },
+  processRecoverOneTrash: async ({
+    contactId,
+    userId,
+  }: IChangeTrashStatusPayload) => {
+    try {
+      await recoverOneTrash({ contactId });
+      await Promise.all([
+        redisClient.del(`contacts:${userId}`),
+        redisClient.del(`trash:${userId}`),
+      ]);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Process Recover One Trash');
       }
     }
   },

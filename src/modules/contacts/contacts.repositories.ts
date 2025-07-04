@@ -92,14 +92,11 @@ const ContactsRepositories = {
       }
     }
   },
-  changeTrashStatus: async ({
-    contactId,
-    isTrashed,
-  }: IChangeTrashStatusPayload) => {
+  changeTrashStatus: async ({ contactId }: IChangeTrashStatusPayload) => {
     try {
       return await Contacts.findByIdAndUpdate(
         contactId,
-        { $set: { isTrashed, isFavorite: false, trashedAt: Date.now() } },
+        { $set: { isTrashed: true, isFavorite: false, trashedAt: Date.now() } },
         { new: true }
       );
     } catch (error) {
@@ -145,7 +142,11 @@ const ContactsRepositories = {
   },
   deleteManyContact: async ({ contactIds }: IDeleteManyContactPayload) => {
     try {
-      return await Contacts.deleteMany({ _id: { $in: contactIds } });
+      const [deletedContacts, deletedContactCount] = await Promise.all([
+        Contacts.find({ _id: { $in: contactIds } }, { avatar: 1 }),
+        (await Contacts.deleteMany({ _id: { $in: contactIds } })).deletedCount,
+      ]);
+      return { deletedContacts, deletedContactCount };
     } catch (error) {
       if (error instanceof Error) {
         throw error;
@@ -287,6 +288,49 @@ const ContactsRepositories = {
       } else {
         throw new Error('Unknown Error Occurred In Find Find Trash Query');
       }
+    }
+  },
+  bulkRecoverTrash: async ({ contactIds }: IBulkChangeTrashStatusPayload) => {
+    try {
+      await Contacts.updateMany(
+        { _id: { $in: contactIds } },
+        { $set: { isTrashed: false, trashedAt: null } }
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error(
+          'Unknown Error Occurred In Bulk Recover Trash Contacts Status Query'
+        );
+      }
+    }
+  },
+  recoverOneTrash: async ({ contactId }: IChangeTrashStatusPayload) => {
+    try {
+      await Contacts.findByIdAndUpdate(
+        contactId,
+        { $set: { isTrashed: false, trashedAt: null } },
+        { new: true }
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('Unknown Error Occurred In Single Recover Trash Query');
+      }
+    }
+  },
+  emptyTrash: async ({ userId }: IDeleteManyContactPayload) => {
+    try {
+      const [contacts, deleteResponse] = await Promise.all([
+        Contacts.find({ userId, isTrashed: true }),
+        Contacts.deleteMany({ userId, isTrashed: true }),
+      ]);
+      return { contacts, deletedCount: deleteResponse.deletedCount };
+    } catch (error) {
+      if (error instanceof Error) throw error;
+      throw new Error('Unknown Error Occurred In Empty Trash Query');
     }
   },
 };

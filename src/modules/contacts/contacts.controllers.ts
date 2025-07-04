@@ -23,6 +23,9 @@ const {
   processDeleteManyContact,
   processDeleteSingleContact,
   processSearchContact,
+  processBulkRecoverTrash,
+  processRecoverOneTrash,
+  processEmptyTrash,
 } = ContactsServices;
 
 const ContactsControllers = {
@@ -109,10 +112,8 @@ const ContactsControllers = {
         return;
       }
       const contactId = new mongoose.Types.ObjectId(id);
-      const { isTrashed } = req.body;
       const data = await processChangeTrashStatus({
         contactId,
-        isTrashed,
         userId,
       });
       res.status(200).json({
@@ -312,15 +313,15 @@ const ContactsControllers = {
       } = req.body;
       const data = await processPutUpdateOneContact({
         avatarUpload: avatarImage,
-        avatar:JSON.parse(avatar),
+        avatar: JSON.parse(avatar),
         contactId,
-        birthday:JSON.parse(birthday),
+        birthday: JSON.parse(birthday),
         email,
         firstName,
         lastName,
-        location:JSON.parse(location),
+        location: JSON.parse(location),
         phone,
-        worksAt:JSON.parse(worksAt),
+        worksAt: JSON.parse(worksAt),
         userId,
       });
       res.status(200).json({
@@ -409,6 +410,66 @@ const ContactsControllers = {
         success: true,
         message: 'Search Contacts Found',
         data,
+      });
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleBulkRecoverTrash: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { userId } = req.decoded;
+      const { contactIds } = req.body;
+      await processBulkRecoverTrash({ contactIds, userId });
+      res.status(200).json({
+        success: true,
+        message: 'Contacts recover successful',
+      });
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleRecoverOneTrash: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { userId } = req.decoded;
+      const { id } = req.params;
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).json({ status: 'error', message: 'Invalid Trash ID' });
+        return;
+      }
+      const contactId = new mongoose.Types.ObjectId(id);
+      await processRecoverOneTrash({
+        contactId,
+        userId,
+      });
+      res.status(200).json({
+        success: true,
+        message: 'Contact recover successful',
+      });
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleEmptyTrash: async (req: Request, res: Response, next: NextFunction) => {
+    const { userId } = req.decoded;
+    try {
+      await processEmptyTrash({ userId });
+      res.status(200).json({
+        success: true,
+        message: 'Trash emptied',
       });
     } catch (error) {
       const err = error as Error;

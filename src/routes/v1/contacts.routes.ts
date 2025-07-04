@@ -18,17 +18,25 @@ const {
   handleDeleteManyContact,
   handleDeleteOneContact,
   handleSearchContact,
+  handleBulkRecoverTrash,
+  handleRecoverOneTrash,
+  handleEmptyTrash,
 } = ContactsControllers;
 
 const router = Router();
 
 router
+  .route('/contacts/recover')
+  .patch(checkAccessToken, handleBulkRecoverTrash);
+router
+  .route('/contacts/recover/:id')
+  .patch(checkAccessToken, handleRecoverOneTrash);
+router.route('/contacts/empty').delete(checkAccessToken, handleEmptyTrash);
+router
   .route('/contacts')
   .get(checkAccessToken, handleFindContacts)
   .post(checkAccessToken, handleCreateContact);
-
 router.route('/search').get(checkAccessToken, handleSearchContact);
-
 router
   .route('/contacts/:id')
   .get(checkAccessToken, handleFindOneContacts)
