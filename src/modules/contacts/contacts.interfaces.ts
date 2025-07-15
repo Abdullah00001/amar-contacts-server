@@ -29,8 +29,9 @@ interface IContacts {
   createdAt?: Date;
   updatedAt?: Date;
   avatar: IImage;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
+  name: string;
   email: string;
   phone: string;
   worksAt: IWorksAt;
@@ -39,6 +40,7 @@ interface IContacts {
   isFavorite: boolean;
   isTrashed: boolean;
   trashedAt: Date;
+  linkedUserId: Types.ObjectId;
   userId: Types.ObjectId;
 }
 

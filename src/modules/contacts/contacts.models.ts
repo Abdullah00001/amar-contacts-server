@@ -46,8 +46,7 @@ const ContactsSchema = new Schema<IContacts>(
     avatar: AvatarSchema,
     birthday: BirthDaySchema,
     email: { type: String, default: null, index: true },
-    firstName: { type: String, default: null, index: true },
-    lastName: { type: String, default: null, index: true },
+    name: { type: String, default: null, index: true },
     phone: { type: String, default: null, index: true },
     isTrashed: { type: Boolean, default: false, index: true },
     isFavorite: { type: Boolean, default: false },
@@ -60,6 +59,7 @@ const ContactsSchema = new Schema<IContacts>(
     },
     location: LocationSchema,
     worksAt: WorksAtSchema,
+    linkedUserId: { type: Schema.Types.ObjectId, ref: 'User', default: null }
   },
   { timestamps: true }
 );
