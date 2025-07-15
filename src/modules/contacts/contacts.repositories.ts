@@ -1,4 +1,4 @@
-import {
+import IContacts, {
   IBulkChangeTrashStatusPayload,
   IChangeFavoriteStatusPayload,
   IChangeTrashStatusPayload,
@@ -11,11 +11,34 @@ import {
   IUpdateOneContactPayload,
 } from '@/modules/contacts/contacts.interfaces';
 import Contacts from '@/modules/contacts/contacts.models';
+import User from '@/modules/user/user.models';
 import mongoose from 'mongoose';
 
 const ContactsRepositories = {
-  createContact: async (payload: ICreateContactPayload) => {
+  createContact: async ({
+    avatar,
+    birthday,
+    email,
+    firstName,
+    lastName,
+    location,
+    phone,
+    worksAt,
+    userId,
+  }: ICreateContactPayload) => {
     try {
+      const user = await User.findOne({ email: email });
+      const payload = {
+        avatar,
+        birthday,
+        email,
+        name: `${firstName} ${lastName}`,
+        location,
+        phone,
+        worksAt,
+        userId,
+        linkedUserId: user && user._id,
+      } as IContacts;
       const newContact = new Contacts(payload);
       await newContact.save();
       return newContact;
@@ -43,12 +66,11 @@ const ContactsRepositories = {
         avatar,
         birthday,
         email,
-        firstName,
-        lastName,
+        name: `${firstName} ${lastName}`,
         location,
         phone,
         worksAt,
-      } as IUpdateOneContactPayload;
+      } as IContacts;
       const data = await Contacts.findByIdAndUpdate(contactId, payload, {
         new: true,
       });
@@ -164,13 +186,7 @@ const ContactsRepositories = {
           $project: {
             _id: 1,
             avatar: 1,
-            name: {
-              $concat: [
-                { $ifNull: ['$firstName', ''] },
-                ' ',
-                { $ifNull: ['$lastName', ''] },
-              ],
-            },
+            name: 1,
             isTrashed: 1,
             isFavorite: 1,
             email: 1,
@@ -197,13 +213,7 @@ const ContactsRepositories = {
           $project: {
             _id: 1,
             avatar: 1,
-            name: {
-              $concat: [
-                { $ifNull: ['$firstName', ''] },
-                ' ',
-                { $ifNull: ['$lastName', ''] },
-              ],
-            },
+            name: 1,
             isTrashed: 1,
             isFavorite: 1,
             email: 1,
@@ -230,13 +240,7 @@ const ContactsRepositories = {
           $project: {
             _id: 1,
             avatar: 1,
-            name: {
-              $concat: [
-                { $ifNull: ['$firstName', ''] },
-                ' ',
-                { $ifNull: ['$lastName', ''] },
-              ],
-            },
+            name: 1,
             isTrashed: 1,
             trashedAt: 1,
           },
@@ -259,25 +263,14 @@ const ContactsRepositories = {
           $match: {
             userId: objectUserId,
             isTrashed: false,
-            $or: [
-              { firstName: regex },
-              { lastName: regex },
-              { email: regex },
-              { phone: regex },
-            ],
+            $or: [{ name: regex }, { email: regex }, { phone: regex }],
           },
         },
         {
           $project: {
             _id: 1,
             avatar: 1,
-            name: {
-              $concat: [
-                { $ifNull: ['$firstName', ''] },
-                ' ',
-                { $ifNull: ['$lastName', ''] },
-              ],
-            },
+            name: 1,
             email: 1,
           },
         },
