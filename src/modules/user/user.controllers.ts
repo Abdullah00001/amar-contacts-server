@@ -313,8 +313,28 @@ const UserControllers = {
       const { password } = req.body;
       const { email, name, userId, isVerified } = req.decoded;
       const r_stp3 = req.cookies?.r_stp3;
-      const ipAddress = getRealIP(req) as string[];
-      const locationInfo = await getLocationFromIP(ipAddress[0]);
+      const ipAddress = getRealIP(req);
+      let locationInfo = null;
+      let location = 'Unknown';
+      if (
+        ipAddress &&
+        ipAddress !== '::1' &&
+        ipAddress !== '127.0.0.1' &&
+        ipAddress.length > 5
+      ) {
+        try {
+          locationInfo = await getLocationFromIP(ipAddress);
+          if (
+            locationInfo?.city &&
+            locationInfo?.regionName &&
+            locationInfo?.country
+          ) {
+            location = `${locationInfo.city}, ${locationInfo.regionName}, ${locationInfo.country}`;
+          }
+        } catch (locationError) {
+          console.error('Location lookup failed:', locationError);
+        }
+      }
       const device = `${req?.useragent?.browser} ${req?.useragent?.version} on ${req?.useragent?.os}`;
       const { accessToken, refreshToken } = await processResetPassword({
         email,
@@ -324,9 +344,7 @@ const UserControllers = {
         r_stp3,
         device,
         ipAddress: ipAddress[0],
-        location: locationInfo
-          ? `${locationInfo.city}, ${locationInfo.regionName}, ${locationInfo.country}`
-          : 'Unknown',
+        location: location,
         password,
       });
       res.clearCookie('r_stp3', cookieOption(recoverSessionExpiresIn));

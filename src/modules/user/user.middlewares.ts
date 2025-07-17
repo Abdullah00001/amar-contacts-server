@@ -382,11 +382,18 @@ const UserMiddlewares = {
     }
   },
   getRealIP: (req: Request) => {
-    return (
-      req.headers['x-forwarded-for'] ||
-      req.headers['x-real-ip'] ||
-      req.socket.remoteAddress
-    );
+    const forwarded = req.headers['x-forwarded-for'];
+    const realIp = req.headers['x-real-ip'];
+    const socketIp = req.socket.remoteAddress;
+
+    if (forwarded) {
+      return (forwarded as string).split(',')[0].trim();
+    }
+
+    if (realIp) {
+      return realIp as string;
+    }
+    return socketIp || '';
   },
 };
 

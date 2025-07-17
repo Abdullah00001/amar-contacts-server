@@ -7,7 +7,6 @@ import { globalErrorMiddleware } from '@/middlewares/globalError.middleware';
 import cookieParser from 'cookie-parser';
 import v1Routes from '@/routes/v1';
 import { baseUrl } from '@/const';
-import multer from 'multer';
 import userAgent from 'express-useragent';
 import YAML from 'yamljs';
 import swaggerUi, { JsonObject } from 'swagger-ui-express';
