@@ -3,7 +3,7 @@ name: CONTINUOUS DELIVERY AND DEPLOYMENT FOR STAGING
 on:
   push:
     branches:
-      - 'refs/heads/staging/v*'
+      - 'staging/v*'
 
 jobs:
   build:
