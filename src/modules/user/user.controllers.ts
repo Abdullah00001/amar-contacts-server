@@ -343,7 +343,7 @@ const UserControllers = {
         isVerified,
         r_stp3,
         device,
-        ipAddress: ipAddress[0],
+        ipAddress: ipAddress,
         location: location,
         password,
       });
