@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: staging
+    environment: Staging
 
     steps:
       - name: Checkout Repository
@@ -31,3 +31,5 @@ jobs:
           push: true
           tags: |
             abdullah00001/amar-contacts:${{ steps.tag.outputs.TAG }}
+      - name: Deploy to Render
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
