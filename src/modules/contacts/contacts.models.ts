@@ -59,7 +59,7 @@ const ContactsSchema = new Schema<IContacts>(
     },
     location: LocationSchema,
     worksAt: WorksAtSchema,
-    linkedUserId: { type: Schema.Types.ObjectId, ref: 'User', default: null }
+    linkedUserId: { type: Schema.Types.ObjectId, ref: 'User', default: null },
   },
   { timestamps: true }
 );
