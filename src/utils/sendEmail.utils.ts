@@ -13,6 +13,9 @@ import {
   IResetPasswordSendEmailPayload,
 } from '@/modules/user/user.interfaces';
 import { passwordResetNotificationTemplate } from '@/templates/passwordResetNotificationTemplate';
+import DateUtils from '@/utils/date.utils';
+
+const { formatDateTime } = DateUtils;
 
 const SendEmail = {
   sendAccountVerificationOtpEmail: async (data: IVerificationEmailData) => {
@@ -85,7 +88,7 @@ const SendEmail = {
         location,
         name,
         profileUrl,
-        resetDateTime: new Date().toISOString(),
+        resetDateTime: formatDateTime(new Date().toISOString()),
         supportEmail,
       };
       const template = Handlebars.compile(passwordResetNotificationTemplate);
