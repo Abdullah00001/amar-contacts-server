@@ -3,6 +3,7 @@ import axios from 'axios';
 export const corsWhiteList = [
   'http://localhost:5173',
   'http://localhost:3000',
+  'https://amar-contacts-staging.vercel.app',
   'https://amar-contacts.vercel.app',
   'https://amar-contacts.onrender.com',
   'https://staging-amar-contacts.vercel.app',
