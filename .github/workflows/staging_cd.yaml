@@ -32,5 +32,5 @@ jobs:
           tags: |
             abdullah00001/amar-contacts:${{ steps.tag.outputs.TAG }}
             abdullah00001/amar-contacts:staging-latest
-      # - name: Deploy to Render
-      #   run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+      - name: Deploy to Render
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
