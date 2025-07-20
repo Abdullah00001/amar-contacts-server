@@ -94,9 +94,13 @@ const UserServices = {
     );
     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
   },
-  processVerifyUser: async ({ email }: IUserPayload): Promise<IUserPayload> => {
+  processVerifyUser: async ({
+    email,
+    userId,
+  }: IUserPayload): Promise<IUserPayload> => {
     try {
       const user = await verifyUser({ email });
+      await redisClient.del(`user:recover:otp:${userId}`);
       const accessToken = generateAccessToken({
         email: user?.email as string,
         isVerified: user?.isVerified as boolean,
@@ -280,6 +284,7 @@ const UserServices = {
     avatar,
   }: IProcessRecoverAccountPayload): Promise<IProcessFindUserReturn> => {
     try {
+      await redisClient.del(`user:recover:otp:${userId}`);
       await redisClient.set(
         `blacklist:recover:r_stp2:${userId}`,
         r_stp2!,

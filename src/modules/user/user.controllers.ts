@@ -91,6 +91,9 @@ const UserControllers = {
   handleLogin: (req: Request, res: Response, next: NextFunction) => {
     try {
       const { accessToken, refreshToken } = processLogin(req.user as IUser);
+      res.clearCookie('r_stp1', cookieOption(recoverSessionExpiresIn));
+      res.clearCookie('r_stp2', cookieOption(recoverSessionExpiresIn));
+      res.clearCookie('r_stp3', cookieOption(recoverSessionExpiresIn));
       res.cookie(
         'accesstoken',
         accessToken,

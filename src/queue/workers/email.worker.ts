@@ -49,7 +49,7 @@ const worker = new Worker(
           year: new Date().getFullYear(),
         };
         const template = Handlebars.compile(accountRecoveryEmailTemplate);
-        const personalizedTemplate = template(data);
+        const personalizedTemplate = template(templateData);
         await mailTransporter.sendMail(
           mailOption(
             email,
@@ -73,7 +73,7 @@ const worker = new Worker(
           supportEmail,
         };
         const template = Handlebars.compile(passwordResetNotificationTemplate);
-        const personalizedTemplate = template(data);
+        const personalizedTemplate = template(templateData);
         await mailTransporter.sendMail(
           mailOption(
             email,
