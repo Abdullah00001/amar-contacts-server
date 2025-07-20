@@ -14,7 +14,6 @@ import {
   recoverSessionExpiresIn,
   refreshTokenExpiresIn,
 } from '@/const';
-import SendEmail from '@/utils/sendEmail.utils';
 import JwtUtils from '@/utils/jwt.utils';
 import { Types } from 'mongoose';
 import { IRefreshTokenPayload } from '@/interfaces/jwtPayload.interfaces';
@@ -24,12 +23,10 @@ import EmailQueueJobs from '@/queue/jobs/email.jobs';
 
 const { hashPassword } = PasswordUtils;
 const {
-  sendAccountVerificationOtpEmail,
-  sendAccountRecoverOtpEmail,
-  sendPasswordResetNotificationEmail,
-} = SendEmail;
-
-const { addSendAccountVerificationOtpEmailToQueue } = EmailQueueJobs;
+  addSendAccountVerificationOtpEmailToQueue,
+  addSendPasswordResetNotificationEmailToQueue,
+  addSendAccountRecoverOtpEmailToQueue,
+} = EmailQueueJobs;
 
 const { createNewUser, verifyUser, findUserByEmail, resetPassword } =
   UserRepositories;
@@ -136,7 +133,7 @@ const UserServices = {
           'PX',
           calculateMilliseconds(otpExpireAt, 'minute')
         ),
-        sendAccountVerificationOtpEmail({
+        addSendAccountVerificationOtpEmailToQueue({
           email: email as string,
           expirationTime: otpExpireAt,
           name: name as string,
@@ -245,18 +242,18 @@ const UserServices = {
           'PX',
           expiresInTimeUnitToMs(recoverSessionExpiresIn)
         ),
-        sendAccountRecoverOtpEmail({
-          email,
-          expirationTime: otpExpireAt,
-          name,
-          otp,
-        }),
         redisClient.set(
           `user:recover:otp:${userId}`,
           otp,
           'PX',
           calculateMilliseconds(otpExpireAt, 'minute')
         ),
+        addSendAccountRecoverOtpEmailToQueue({
+          email,
+          expirationTime: otpExpireAt,
+          name,
+          otp,
+        }),
       ]);
       const r_stp2 = generateRecoverToken({
         userId,
@@ -318,7 +315,7 @@ const UserServices = {
         upperCaseAlphabets: false,
       });
       await Promise.all([
-        sendAccountRecoverOtpEmail({
+        addSendAccountRecoverOtpEmailToQueue({
           email,
           expirationTime: otpExpireAt,
           name,
@@ -373,7 +370,7 @@ const UserServices = {
           'PX',
           expiresInTimeUnitToMs(recoverSessionExpiresIn)
         ),
-        sendPasswordResetNotificationEmail({
+        addSendPasswordResetNotificationEmailToQueue({
           device,
           email,
           ipAddress,
