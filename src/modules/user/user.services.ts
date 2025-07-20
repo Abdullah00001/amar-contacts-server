@@ -14,19 +14,19 @@ import {
   recoverSessionExpiresIn,
   refreshTokenExpiresIn,
 } from '@/const';
-import SendEmail from '@/utils/sendEmail.utils';
 import JwtUtils from '@/utils/jwt.utils';
 import { Types } from 'mongoose';
 import { IRefreshTokenPayload } from '@/interfaces/jwtPayload.interfaces';
 import CalculationUtils from '@/utils/calculation.utils';
 import PasswordUtils from '@/utils/password.utils';
+import EmailQueueJobs from '@/queue/jobs/email.jobs';
 
 const { hashPassword } = PasswordUtils;
 const {
-  sendAccountVerificationOtpEmail,
-  sendAccountRecoverOtpEmail,
-  sendPasswordResetNotificationEmail,
-} = SendEmail;
+  addSendAccountVerificationOtpEmailToQueue,
+  addSendPasswordResetNotificationEmailToQueue,
+  addSendAccountRecoverOtpEmailToQueue,
+} = EmailQueueJobs;
 
 const { createNewUser, verifyUser, findUserByEmail, resetPassword } =
   UserRepositories;
@@ -52,7 +52,7 @@ const UserServices = {
           'PX',
           calculateMilliseconds(otpExpireAt, 'minute')
         ),
-        sendAccountVerificationOtpEmail({
+        addSendAccountVerificationOtpEmailToQueue({
           email: createdUser?.email,
           expirationTime: otpExpireAt,
           name: createdUser?.name,
@@ -94,9 +94,13 @@ const UserServices = {
     );
     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
   },
-  processVerifyUser: async ({ email }: IUserPayload): Promise<IUserPayload> => {
+  processVerifyUser: async ({
+    email,
+    userId,
+  }: IUserPayload): Promise<IUserPayload> => {
     try {
       const user = await verifyUser({ email });
+      await redisClient.del(`user:recover:otp:${userId}`);
       const accessToken = generateAccessToken({
         email: user?.email as string,
         isVerified: user?.isVerified as boolean,
@@ -133,7 +137,7 @@ const UserServices = {
           'PX',
           calculateMilliseconds(otpExpireAt, 'minute')
         ),
-        sendAccountVerificationOtpEmail({
+        addSendAccountVerificationOtpEmailToQueue({
           email: email as string,
           expirationTime: otpExpireAt,
           name: name as string,
@@ -242,18 +246,18 @@ const UserServices = {
           'PX',
           expiresInTimeUnitToMs(recoverSessionExpiresIn)
         ),
-        sendAccountRecoverOtpEmail({
-          email,
-          expirationTime: otpExpireAt,
-          name,
-          otp,
-        }),
         redisClient.set(
           `user:recover:otp:${userId}`,
           otp,
           'PX',
           calculateMilliseconds(otpExpireAt, 'minute')
         ),
+        addSendAccountRecoverOtpEmailToQueue({
+          email,
+          expirationTime: otpExpireAt,
+          name,
+          otp,
+        }),
       ]);
       const r_stp2 = generateRecoverToken({
         userId,
@@ -280,6 +284,7 @@ const UserServices = {
     avatar,
   }: IProcessRecoverAccountPayload): Promise<IProcessFindUserReturn> => {
     try {
+      await redisClient.del(`user:recover:otp:${userId}`);
       await redisClient.set(
         `blacklist:recover:r_stp2:${userId}`,
         r_stp2!,
@@ -315,7 +320,7 @@ const UserServices = {
         upperCaseAlphabets: false,
       });
       await Promise.all([
-        sendAccountRecoverOtpEmail({
+        addSendAccountRecoverOtpEmailToQueue({
           email,
           expirationTime: otpExpireAt,
           name,
@@ -370,7 +375,7 @@ const UserServices = {
           'PX',
           expiresInTimeUnitToMs(recoverSessionExpiresIn)
         ),
-        sendPasswordResetNotificationEmail({
+        addSendPasswordResetNotificationEmailToQueue({
           device,
           email,
           ipAddress,
