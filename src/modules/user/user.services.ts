@@ -20,6 +20,7 @@ import { Types } from 'mongoose';
 import { IRefreshTokenPayload } from '@/interfaces/jwtPayload.interfaces';
 import CalculationUtils from '@/utils/calculation.utils';
 import PasswordUtils from '@/utils/password.utils';
+import EmailQueueJobs from '@/queue/jobs/email.jobs';
 
 const { hashPassword } = PasswordUtils;
 const {
@@ -27,6 +28,8 @@ const {
   sendAccountRecoverOtpEmail,
   sendPasswordResetNotificationEmail,
 } = SendEmail;
+
+const { addSendAccountVerificationOtpEmailToQueue } = EmailQueueJobs;
 
 const { createNewUser, verifyUser, findUserByEmail, resetPassword } =
   UserRepositories;
@@ -52,7 +55,7 @@ const UserServices = {
           'PX',
           calculateMilliseconds(otpExpireAt, 'minute')
         ),
-        sendAccountVerificationOtpEmail({
+        addSendAccountVerificationOtpEmailToQueue({
           email: createdUser?.email,
           expirationTime: otpExpireAt,
           name: createdUser?.name,

@@ -12,6 +12,7 @@ import YAML from 'yamljs';
 import swaggerUi, { JsonObject } from 'swagger-ui-express';
 import path from 'path';
 import '@/jobs/index';
+import '@/queue/index';
 
 const app: Application = express();
 const swaggerDocumentPath = path.resolve(__dirname, '../swagger.yaml');
