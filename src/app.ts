@@ -14,6 +14,7 @@ import path from 'path';
 import '@/jobs/index';
 import '@/queue/index';
 import passport from 'passport';
+import '@/configs/googleStrategy.config';
 
 const app: Application = express();
 const swaggerDocumentPath = path.resolve(__dirname, '../swagger.yaml');

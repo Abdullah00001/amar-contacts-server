@@ -35,6 +35,7 @@ const {
   handleCheckR_Stp1,
   handleCheckR_Stp2,
   handleCheckR_Stp3,
+  handleProcessOAuthCallback,
 } = UserControllers;
 
 const router = Router();
@@ -79,11 +80,12 @@ router
   .route('/auth/google')
   .get(passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-router.route('/auth/callback').get(
+router.route('/google/callback').get(
   passport.authenticate('google', {
     failureRedirect: `${CLIENT_BASE_URL}/login?error=user_not_found`,
     session: false,
-  })
+  }),
+  handleProcessOAuthCallback
 );
 
 export default router;
