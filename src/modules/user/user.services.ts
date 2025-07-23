@@ -394,6 +394,40 @@ const UserServices = {
       }
     }
   },
+  processOAuthCallback: ({
+    email,
+    name,
+    isVerified,
+    _id,
+  }: IUser): IUserPayload => {
+    try {
+      const accessToken = generateAccessToken({
+      email,
+      isVerified,
+      userId: _id as Types.ObjectId,
+      name,
+    });
+    const refreshToken = generateRefreshToken({
+      email,
+      isVerified,
+      userId: _id as Types.ObjectId,
+      name,
+    });
+
+    return {
+      accessToken: accessToken!,
+      refreshToken: refreshToken!,
+    };
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error(
+          'Unknown Error Occurred In Process OAuth Callback Service'
+        );
+      }
+    }
+  },
 };
 
 export default UserServices;

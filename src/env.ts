@@ -17,4 +17,8 @@ export const env: IEnvConfig = {
   JWT_RECOVER_SESSION_TOKEN_SECRET_KEY: getEnvVariable(
     'JWT_RECOVER_SESSION_TOKEN_SECRET_KEY'
   ),
+  GOOGLE_CLIENT_ID: getEnvVariable('GOOGLE_CLIENT_ID'),
+  GOOGLE_CLIENT_SECRET: getEnvVariable('GOOGLE_CLIENT_SECRET'),
+  CALLBACK_URL: getEnvVariable('CALLBACK_URL'),
+  CLIENT_BASE_URL: getEnvVariable('CLIENT_BASE_URL'),
 };

@@ -12,4 +12,8 @@ export default interface IEnvConfig {
   CLOUDINARY_NAME: string;
   CLOUDINARY_API_KEY: string;
   CLOUDINARY_API_SECRET_KEY: string;
+  GOOGLE_CLIENT_SECRET: string;
+  GOOGLE_CLIENT_ID: string;
+  CALLBACK_URL: string;
+  CLIENT_BASE_URL: string;
 }

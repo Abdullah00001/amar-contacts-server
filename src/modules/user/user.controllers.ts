@@ -10,9 +10,12 @@ import {
   recoverSessionExpiresIn,
   refreshTokenExpiresIn,
 } from '@/const';
+import { AuthType } from '@/modules/user/user.enums';
+import { env } from '@/env';
 
 const { cookieOption } = CookieUtils;
 const { getRealIP } = UserMiddlewares;
+const { CLIENT_BASE_URL } = env;
 
 const {
   processSignup,
@@ -26,13 +29,19 @@ const {
   processVerifyOtp,
   processReSentRecoverAccountOtp,
   processResetPassword,
+  processOAuthCallback,
 } = UserServices;
 
 const UserControllers = {
   handleSignUp: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { name, email, password } = req.body;
-      const createdUser = await processSignup({ name, email, password });
+      const createdUser = await processSignup({
+        name,
+        email,
+        password,
+        provider: AuthType.LOCAL,
+      });
       res.status(201).json({
         success: true,
         message: 'User signup successful',
@@ -366,6 +375,31 @@ const UserControllers = {
         message: 'Password Reset Successful',
       });
       return;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(err.message);
+      next(error);
+    }
+  },
+  handleProcessOAuthCallback: (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const user = req.user as IUser;
+    try {
+      const { accessToken, refreshToken } = processOAuthCallback(user);
+      res.cookie(
+        'accesstoken',
+        accessToken,
+        cookieOption(accessTokenExpiresIn)
+      );
+      res.cookie(
+        'refreshtoken',
+        refreshToken,
+        cookieOption(refreshTokenExpiresIn)
+      );
+      res.redirect(CLIENT_BASE_URL);
     } catch (error) {
       const err = error as Error;
       logger.error(err.message);
