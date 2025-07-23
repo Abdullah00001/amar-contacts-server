@@ -402,22 +402,22 @@ const UserServices = {
   }: IUser): IUserPayload => {
     try {
       const accessToken = generateAccessToken({
-      email,
-      isVerified,
-      userId: _id as Types.ObjectId,
-      name,
-    });
-    const refreshToken = generateRefreshToken({
-      email,
-      isVerified,
-      userId: _id as Types.ObjectId,
-      name,
-    });
+        email,
+        isVerified,
+        userId: _id as Types.ObjectId,
+        name,
+      });
+      const refreshToken = generateRefreshToken({
+        email,
+        isVerified,
+        userId: _id as Types.ObjectId,
+        name,
+      });
 
-    return {
-      accessToken: accessToken!,
-      refreshToken: refreshToken!,
-    };
+      return {
+        accessToken: accessToken!,
+        refreshToken: refreshToken!,
+      };
     } catch (error) {
       if (error instanceof Error) {
         throw error;
