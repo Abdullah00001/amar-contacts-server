@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import UserControllers from '@/modules/user/user.controllers';
 import UserMiddlewares from '@/modules/user/user.middlewares';
+import passport from 'passport';
+import { env } from '@/env';
 
+const { CLIENT_BASE_URL } = env;
 const {
   isSignupUserExist,
   checkOtp,
@@ -71,5 +74,16 @@ router
 router
   .route('/auth/recover/reset')
   .patch(checkR_stp3Token, handleResetPassword);
+
+router
+  .route('/auth/google')
+  .get(passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+router.route('/auth/callback').get(
+  passport.authenticate('google', {
+    failureRedirect: `${CLIENT_BASE_URL}/login?error=user_not_found`,
+    session: false,
+  })
+);
 
 export default router;

@@ -1,4 +1,5 @@
 import { IImage } from '@/modules/contacts/contacts.interfaces';
+import { AuthType } from '@/modules/user/user.enums';
 import { Document, Types } from 'mongoose';
 
 interface IUser extends Document {
@@ -8,6 +9,8 @@ interface IUser extends Document {
   password: string;
   isVerified: boolean;
   avatar: IImage;
+  provider: AuthType;
+  googleId: string;
 }
 
 export interface IUserPayload {
@@ -21,6 +24,8 @@ export interface IUserPayload {
   otp?: string;
   accessToken?: string;
   refreshToken?: string;
+  provider?: AuthType;
+  googleId?: string;
 }
 
 export interface IProcessFindUserReturn {

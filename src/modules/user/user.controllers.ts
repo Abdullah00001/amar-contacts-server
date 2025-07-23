@@ -10,6 +10,7 @@ import {
   recoverSessionExpiresIn,
   refreshTokenExpiresIn,
 } from '@/const';
+import { AuthType } from '@/modules/user/user.enums';
 
 const { cookieOption } = CookieUtils;
 const { getRealIP } = UserMiddlewares;
@@ -32,7 +33,12 @@ const UserControllers = {
   handleSignUp: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { name, email, password } = req.body;
-      const createdUser = await processSignup({ name, email, password });
+      const createdUser = await processSignup({
+        name,
+        email,
+        password,
+        provider: AuthType.LOCAL,
+      });
       res.status(201).json({
         success: true,
         message: 'User signup successful',

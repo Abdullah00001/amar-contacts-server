@@ -13,6 +13,7 @@ import swaggerUi, { JsonObject } from 'swagger-ui-express';
 import path from 'path';
 import '@/jobs/index';
 import '@/queue/index';
+import passport from 'passport';
 
 const app: Application = express();
 const swaggerDocumentPath = path.resolve(__dirname, '../swagger.yaml');
@@ -33,6 +34,7 @@ app.use(
     },
   })
 );
+app.use(passport.initialize());
 
 app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({ message: 'Server Is Running' });
