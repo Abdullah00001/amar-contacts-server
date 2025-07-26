@@ -12,6 +12,7 @@ import {
 } from '@/const';
 import { AuthType } from '@/modules/user/user.enums';
 import { env } from '@/env';
+import { UAParser } from 'ua-parser-js';
 
 const { cookieOption } = CookieUtils;
 const { getRealIP } = UserMiddlewares;
@@ -347,14 +348,15 @@ const UserControllers = {
           console.error('Location lookup failed:', locationError);
         }
       }
-      const device = `${req?.useragent?.browser} ${req?.useragent?.version} on ${req?.useragent?.os}`;
+      const { browser, device, os } = UAParser(req.useragent?.source);
+      const userDevice = `${browser.name} ${browser.version} on ${os.name}(${device.type})`;
       const { accessToken, refreshToken } = await processResetPassword({
         email,
         name,
         userId,
         isVerified,
         r_stp3,
-        device,
+        device: userDevice,
         ipAddress: ipAddress,
         location: location,
         password,

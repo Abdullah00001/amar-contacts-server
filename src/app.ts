@@ -38,7 +38,7 @@ app.use(
 app.use(passport.initialize());
 
 app.get('/health', (req: Request, res: Response) => {
-  res.status(200).json({ message: 'Server Is Running' });
+  res.status(200).json({ message: 'Server Is Running'});
 });
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
