@@ -26,4 +26,12 @@ export interface IProfilePayload {
   password?: string;
 }
 
+export interface IGetProfileData {
+  _id?: string;
+  name?: string;
+  email?: string;
+  avatar?: IImage;
+  phone?: string;
+}
+
 export default IProfile;

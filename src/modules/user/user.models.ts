@@ -2,7 +2,6 @@ import { model, Model, Schema } from 'mongoose';
 import IUser from '@/modules/user/user.interfaces';
 import PasswordUtils from '@/utils/password.utils';
 import { AvatarSchema } from '@/modules/contacts/contacts.models';
-import { AuthType } from '@/modules/user/user.enums';
 
 const { hashPassword } = PasswordUtils;
 

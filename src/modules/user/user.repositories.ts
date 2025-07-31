@@ -23,7 +23,10 @@ const UserRepositories = {
     const session = await startSession();
     session.startTransaction();
     try {
-      const newUser = new User(payload);
+      const newUser = new User({
+        ...payload,
+        avatar: { publicId: null, url: null },
+      });
       const newProfile = new Profile({ user: newUser._id });
       await newProfile.save({ session });
       await newUser.save({ session });

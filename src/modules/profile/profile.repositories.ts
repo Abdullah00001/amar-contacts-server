@@ -1,5 +1,6 @@
 import Contacts from '@/modules/contacts/contacts.models';
 import IProfile, {
+  IGetProfileData,
   IProfilePayload,
 } from '@/modules/profile/profile.interfaces';
 import Profile from '@/modules/profile/profile.models';
@@ -67,35 +68,38 @@ const ProfileRepositories = {
       }
     }
   },
-  getProfile: async ({ user }: IProfilePayload): Promise<IProfilePayload> => {
+  getProfile: async ({ user }: IProfilePayload): Promise<IGetProfileData> => {
     const objectUserId = new mongoose.Types.ObjectId(user);
     try {
-      const profileData = await Profile.aggregate([
-        { $match: { user: objectUserId } },
+      const profileData = await User.aggregate([
+        { $match: { _id: objectUserId } },
         {
-          $project: {
-            bio: 1,
-            worksAt: 1,
-            location: 1,
-            dateOfBirth: 1,
-          },
-        },
-      ]);
-      const userData = await User.aggregate([
-        {
-          $match: {
-            _id: objectUserId,
+          $lookup: {
+            from: 'profiles',
+            localField: '_id',
+            foreignField: 'user',
+            as: 'profile',
           },
         },
         {
+          $unwind: {
+            path: '$profile',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
           $project: {
+            _id: 0,
             name: 1,
-            phone: 1,
             avatar: 1,
           },
         },
       ]);
-      return { ...profileData[0], ...userData[0] };
+
+      const { avatar, email, name, phone } = {
+        ...profileData[0],
+      } as IGetProfileData;
+      return { avatar, email, name, phone };
     } catch (error) {
       if (error instanceof Error) {
         throw error;
